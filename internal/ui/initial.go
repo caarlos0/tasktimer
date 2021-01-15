@@ -2,9 +2,7 @@ package ui
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
-	"sort"
 	"strings"
 	"time"
 
@@ -15,8 +13,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var _ tea.Model = initialModel{}
-
 func Init(db *badger.DB) tea.Model {
 	var task = textinput.NewModel()
 	task.Placeholder = "New task description..."
@@ -24,35 +20,34 @@ func Init(db *badger.DB) tea.Model {
 	task.CharLimit = 156
 	task.Width = 50
 
-	return initialModel{
+	return mainModel{
 		clock: clockModel{time.Now()},
-		db:    db,
-		task:  task,
+		list: taskListModel{
+			db: db,
+		},
+		db:   db,
+		task: task,
 	}
 }
 
-type initialModel struct {
+type mainModel struct {
 	clock clockModel
 	task  textinput.Model
+	list  taskListModel
 	db    *badger.DB
-	tasks []model.Task
 	err   error
 }
 
-func (m initialModel) Init() tea.Cmd {
-	return tea.Batch(m.clock.Init(), textinput.Blink, updateTaskListCmd(m.db))
+func (m mainModel) Init() tea.Cmd {
+	return tea.Batch(m.list.Init(), m.clock.Init(), textinput.Blink, updateTaskListCmd(m.db))
 }
 
-func (m initialModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case errMsg:
 		m.err = msg.error
-	case updateTaskListMsg:
-		cmds = append(cmds, updateTaskListCmd(m.db))
-	case taskListUpdatedMsg:
-		m.tasks = msg.tasks
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
@@ -65,52 +60,14 @@ func (m initialModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
+	m.list, cmd = m.list.Update(msg)
+	cmds = append(cmds, cmd)
 	m.task, cmd = m.task.Update(msg)
 	cmds = append(cmds, cmd)
-	clock, cmd := m.clock.Update(msg)
-	m.clock = clock.(clockModel)
+	m.clock, cmd = m.clock.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
-
-type taskListUpdatedMsg struct {
-	tasks []model.Task
-}
-
-func updateTaskListCmd(db *badger.DB) tea.Cmd {
-	return func() tea.Msg {
-		log.Println("updating task list")
-		var tasks []model.Task
-		if err := db.View(func(txn *badger.Txn) error {
-			var it = txn.NewIterator(badger.DefaultIteratorOptions)
-			defer it.Close()
-			for it.Seek([]byte(prefix)); it.ValidForPrefix([]byte(prefix)); it.Next() {
-				var item = it.Item()
-				err := item.Value(func(v []byte) error {
-					var task model.Task
-					if err := json.Unmarshal(v, &task); err != nil {
-						return err
-					}
-					tasks = append(tasks, task)
-					return nil
-				})
-				if err != nil {
-					return err
-				}
-			}
-			return nil
-		}); err != nil {
-			return errMsg{err}
-		}
-		sort.Slice(tasks, func(i, j int) bool {
-			return tasks[i].StartAt.After(tasks[j].StartAt)
-		})
-		log.Println("loaded", len(tasks), "tasks")
-		return taskListUpdatedMsg{tasks}
-	}
-}
-
-type updateTaskListMsg struct{}
 
 func closeTasks(db *badger.DB, then tea.Cmd) tea.Cmd {
 	return func() tea.Msg {
@@ -167,27 +124,11 @@ func createTask(db *badger.DB, t string) tea.Cmd {
 	}
 }
 
-func (m initialModel) View() string {
+func (m mainModel) View() string {
 	if m.err != nil {
 		return "\n" + m.err.Error() + "\n"
 	}
 	var s = m.clock.View() + " - Project Foo\n\n"
 	s += m.task.View()
-	return s + "\n\n---\n\n" + taskView(m.tasks) + "\n"
-}
-
-func taskView(tt []model.Task) string {
-	var s string
-	for _, t := range tt {
-		var z = time.Now()
-		var icon = iconOngoing
-		var decorate = bold
-		if !t.EndAt.IsZero() {
-			z = t.EndAt
-			icon = iconDone
-			decorate = faint
-		}
-		s += decorate(fmt.Sprintf("%s %s (%s)", icon, t.Title, z.Sub(t.StartAt).Round(time.Second))) + "\n"
-	}
-	return s
+	return s + "\n\n---\n\n" + m.list.View() + "\n"
 }

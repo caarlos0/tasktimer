@@ -6,8 +6,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var _ tea.Model = clockModel{}
-
 type clockTickMsg struct{}
 
 func clockTickCmd() tea.Msg {
@@ -23,7 +21,7 @@ func (m clockModel) Init() tea.Cmd {
 	return clockTickCmd
 }
 
-func (m clockModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m clockModel) Update(msg tea.Msg) (clockModel, tea.Cmd) {
 	switch msg.(type) {
 	case clockTickMsg:
 		m.t = time.Now()
