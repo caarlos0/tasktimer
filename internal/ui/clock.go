@@ -11,14 +11,14 @@ type clockModel struct {
 }
 
 func (m clockModel) Init() tea.Cmd {
-	return clockTickCmd
+	return clockTickCmd()
 }
 
 func (m clockModel) Update(msg tea.Msg) (clockModel, tea.Cmd) {
 	switch msg.(type) {
 	case clockTickMsg:
 		m.t = time.Now()
-		return m, clockTickCmd
+		return m, clockTickCmd()
 	}
 	return m, nil
 }
@@ -31,7 +31,8 @@ func (m clockModel) View() string {
 
 type clockTickMsg struct{}
 
-func clockTickCmd() tea.Msg {
-	time.Sleep(time.Second)
-	return clockTickMsg{}
+func clockTickCmd() tea.Cmd {
+	return tea.Every(time.Second, func(t time.Time) tea.Msg {
+		return clockTickMsg{}
+	})
 }
