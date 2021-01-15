@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,52 +11,34 @@ import (
 	"github.com/dgraph-io/badger/v3"
 )
 
+var project = flag.String("project", "default", "your current project name")
+
 func main() {
-	f, err := tea.LogToFile("tasktimer.log", "")
-	defer f.Close()
+	flag.Parse()
 
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	db, err := badger.Open(badger.DefaultOptions(filepath.Join(home, "tasks.db")))
+	var folder = filepath.Join(home, "tasktimer")
+	if err := os.MkdirAll(folder, 0764); err != nil {
+		log.Fatalln(err)
+	}
+
+	f, err := tea.LogToFile(filepath.Join(folder, *project+".log"), "")
+	defer f.Close()
+
+	db, err := badger.Open(badger.DefaultOptions(filepath.Join(folder, *project+".db")))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	var p = tea.NewProgram(ui.Init(db, "task timer"))
+	var p = tea.NewProgram(ui.Init(db, *project))
 	p.EnterAltScreen()
 	defer p.ExitAltScreen()
 	if err = p.Start(); err != nil {
 		log.Fatalln(err)
 	}
-
-	//for i := 0; i < 100; i++ {
-	//	if err := db.Update(func(txn *badger.Txn) error {
-	//		return txn.Set([]byte(time.Now().String()), []byte("set at "+time.Now().String()))
-	//	}); err != nil {
-	//		log.Fatalln(err)
-	//	}
-	//}
-	//
-	//if err := db.View(func(txn *badger.Txn) error {
-	//	var it = txn.NewIterator(badger.DefaultIteratorOptions)
-	//	defer it.Close()
-	//	for it.Rewind(); it.Valid(); it.Next() {
-	//		var item = it.Item()
-	//		var v string
-	//		if err := item.Value(func(val []byte) error {
-	//			v = string(val)
-	//			return nil
-	//		}); err != nil {
-	//			log.Fatalln(err)
-	//		}
-	//		log.Println(string(item.Key()), v)
-	//	}
-	//	return nil
-	//}); err != nil {
-	//	log.Fatalln(err)
-	//}
 }
