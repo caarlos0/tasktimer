@@ -25,7 +25,7 @@ func main() {
 	}
 	defer db.Close()
 
-	var p = tea.NewProgram(ui.Init(db))
+	var p = tea.NewProgram(ui.Init(db, "task timer"))
 	p.EnterAltScreen()
 	defer p.ExitAltScreen()
 	if err = p.Start(); err != nil {
