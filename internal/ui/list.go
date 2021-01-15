@@ -62,7 +62,7 @@ func (m taskListModel) View() string {
 			icon = iconDone
 			decorate = faint
 		}
-		s += decorate(fmt.Sprintf("%s %s (%s)", icon, t.Title, z.Sub(t.StartAt).Round(time.Second))) + "\n"
+		s += decorate(fmt.Sprintf("%s %s (%s)", icon, t.Title, secondaryForeground(z.Sub(t.StartAt).Round(time.Second).String()))) + "\n"
 	}
 	m.viewport.SetContent(s)
 	return m.viewport.View()
@@ -75,6 +75,10 @@ type updateTaskListMsg struct{}
 type taskListUpdatedMsg struct {
 	tasks []model.Task
 }
+
+type errMsg struct{ error }
+
+func (e errMsg) Error() string { return e.error.Error() }
 
 // cmds
 

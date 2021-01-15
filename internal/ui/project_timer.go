@@ -32,7 +32,7 @@ func (m projectTimerModel) View() string {
 		}
 		d += z.Sub(t.StartAt)
 	}
-	return d.Round(time.Second).String()
+	return midGrayForeground("total: ") + boldSecondaryForeground(d.Round(time.Second).String())
 }
 
 // msgs and cmds

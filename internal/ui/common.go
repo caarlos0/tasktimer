@@ -10,12 +10,31 @@ var (
 	red       = termenv.ColorProfile().Color("#ED567A")
 )
 
+const (
+	iconDone    = "●"
+	iconOngoing = "○"
+)
+
+var separator = midGrayForeground(" • ")
+
+func redForeground(s string) string {
+	return termenv.String(s).Foreground(red).String()
+}
+
+func redFaintForeground(s string) string {
+	return termenv.String(s).Foreground(red).Faint().String()
+}
+
 func boldPrimaryForeground(s string) string {
 	return termenv.String(s).Foreground(primary).Bold().String()
 }
 
 func boldSecondaryForeground(s string) string {
 	return termenv.String(s).Foreground(secondary).Bold().String()
+}
+
+func secondaryForeground(s string) string {
+	return termenv.String(s).Foreground(secondary).String()
 }
 
 func grayForeground(s string) string {
@@ -26,10 +45,6 @@ func midGrayForeground(s string) string {
 	return termenv.String(s).Foreground(midGray).String()
 }
 
-type errMsg struct{ error }
-
-func (e errMsg) Error() string { return e.error.Error() }
-
 func faint(s string) string {
 	return termenv.String(s).Faint().String()
 }
@@ -37,8 +52,3 @@ func faint(s string) string {
 func bold(s string) string {
 	return termenv.String(s).Bold().String()
 }
-
-const (
-	iconDone    = "●"
-	iconOngoing = "○"
-)

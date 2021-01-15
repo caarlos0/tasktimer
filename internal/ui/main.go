@@ -9,13 +9,14 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/dgraph-io/badger/v3"
+	"github.com/muesli/reflow/padding"
 )
 
 func Init(db *badger.DB, project string) tea.Model {
 	var input = textinput.NewModel()
 	input.Placeholder = "New task description..."
 	input.Focus()
-	input.CharLimit = 156
+	input.CharLimit = 250
 	input.Width = 50
 
 	return mainModel{
@@ -82,11 +83,15 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m mainModel) View() string {
 	if m.err != nil {
-		return "\n" + m.err.Error() + "\n"
+		return "\n" + redFaintForeground("Oops, something went wrong:") + "\n\n" +
+			padding.String(redForeground(m.err.Error()), 4) + "\n\n" +
+			redFaintForeground("Check the logs for more details...")
 	}
-	var s = m.clock.View() + " - " + m.project + " - " + m.timer.View() + "\n\n"
-	s += m.input.View() + "\n\n"
-	return s + m.list.View() + "\n"
+	return m.clock.View() + separator +
+		midGrayForeground("project: ") + boldPrimaryForeground(m.project) +
+		separator + m.timer.View() + "\n\n" +
+		m.input.View() + "\n\n" +
+		m.list.View() + "\n"
 }
 
 // cmds
