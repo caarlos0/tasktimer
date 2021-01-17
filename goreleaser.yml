@@ -1,0 +1,22 @@
+builds:
+- binary: tt
+  goarch:
+  - amd64
+  - arm64
+brews:
+- tap:
+    owner: caarlos0
+    name: homebrew-tap
+  homepage: https://github.com/caarlos0/tasktimer
+  description: A pretty simple TUI task timer.
+  folder: Formula
+nfpms:
+- maintainer: Carlos A Becker <pkg@carlosbecker.com>
+  description: A pretty simple TUI task timer.
+  homepage: https://github.com/caarlos0/tasktimer
+  license: MIT
+  formats:
+  - deb
+  - rpm
+  - apk
+
