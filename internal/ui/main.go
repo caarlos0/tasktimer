@@ -54,16 +54,16 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
-			return m, closeTasks(m.db, tea.Quit)
+			return m, sequentially(closeTasks(m.db), tea.Quit)
 		case "esc":
 			m.input.Blur()
-			cmds = append(cmds, closeTasks(m.db, updateTaskListCmd(m.db)))
+			cmds = append(cmds, sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
 		case "enter":
 			if !m.input.Focused() {
 				m.input.Focus()
 			} else {
 				log.Println("start/stop input")
-				cmds = append(cmds, closeTasks(m.db, createTask(m.db, strings.TrimSpace(m.input.Value()))))
+				cmds = append(cmds, sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
 				m.input.SetValue("")
 			}
 		}
@@ -96,13 +96,24 @@ func (m mainModel) View() string {
 
 // cmds
 
-func closeTasks(db *badger.DB, then tea.Cmd) tea.Cmd {
+func sequentially(cmds ...tea.Cmd) tea.Cmd {
+	return func() tea.Msg {
+		for _, cmd := range cmds {
+			if msg := cmd(); msg != nil {
+				return msg
+			}
+		}
+		return nil
+	}
+}
+
+func closeTasks(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {
 		log.Println("closing tasks")
 		if err := store.CloseTasks(db); err != nil {
 			return errMsg{err}
 		}
-		return then()
+		return nil
 	}
 }
 
