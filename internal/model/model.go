@@ -7,6 +7,7 @@ import (
 )
 
 type Task struct {
+	ID      uint64    `json:"id"`
 	Title   string    `json:"desc"`
 	StartAt time.Time `json:"start"`
 	EndAt   time.Time `json:"end"`

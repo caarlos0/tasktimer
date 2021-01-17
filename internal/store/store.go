@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"log"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/dgraph-io/badger/v3"
-	"github.com/google/uuid"
 )
 
 var prefix = []byte("tasks.")
+var sequenceID = []byte("tasks_seq")
 
 func GetTaskList(db *badger.DB) ([]model.Task, error) {
 	var tasks []model.Task
@@ -75,10 +76,21 @@ func CreateTask(db *badger.DB, t string) error {
 		return nil
 	}
 
-	var id = string(prefix) + uuid.New().String()
 	return db.Update(func(txn *badger.Txn) error {
+		seq, err := db.GetSequence(sequenceID, 100)
+		if err != nil {
+			return err
+		}
+		defer seq.Release()
+		s, err := seq.Next()
+		if err != nil {
+			return err
+		}
+
+		var id = string(prefix) + strconv.FormatUint(s, 10)
 		log.Println("creating task:", id, "->", t)
 		return txn.Set([]byte(id), model.Task{
+			ID:      s,
 			Title:   t,
 			StartAt: time.Now(),
 		}.Bytes())
