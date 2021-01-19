@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,36 +9,108 @@ import (
 	"github.com/caarlos0/tasktimer/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/dgraph-io/badger/v3"
+	"github.com/spf13/cobra"
 )
 
-var project = flag.String("project", "default", "your current project name")
+var (
+	project string
+	output  string
+)
 
 func main() {
-	flag.Parse()
+	rootCmd.PersistentFlags().StringVarP(&project, "project", "p", "default", "Project name")
+	reportCmd.PersistentFlags().StringVarP(&output, "output", "o", "", "Where to save the markdown report file (default \"{project}.md\")")
 
+	rootCmd.AddCommand(reportCmd)
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+var rootCmd = &cobra.Command{
+	Use:   "tasktimer",
+	Short: "Task Timer is a dead simple TUI task timer",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		db, err := setup()
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+
+		var p = tea.NewProgram(ui.Init(db, project))
+		p.EnterAltScreen()
+		defer p.ExitAltScreen()
+		return p.Start()
+	},
+}
+
+var reportCmd = &cobra.Command{
+	Use:     "report",
+	Aliases: []string{"r"},
+	Short:   "Print a markdown report of the given project",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		db, err := setup()
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+
+		if output == "" {
+			output = project + ".md"
+		}
+
+		f, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		fmt.Println("writing project to", output)
+		return ui.WriteProjectMarkdown(db, project, f)
+	},
+}
+
+func setup() (*badger.DB, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var folder = filepath.Join(home, "tasktimer")
 	if err := os.MkdirAll(folder, 0764); err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
-	f, err := tea.LogToFile(filepath.Join(folder, *project+".log"), "")
+	log.SetFlags(0)
+
+	var logfile = filepath.Join(folder, project+".log")
+	log.Println("logging to", logfile)
+
+	f, err := tea.LogToFile(logfile, "")
 	defer f.Close()
 
-	db, err := badger.Open(badger.DefaultOptions(filepath.Join(folder, *project+".db")))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+	var options = badger.DefaultOptions(filepath.Join(folder, project+".db")).
+		WithLogger(badgerStdLoggerAdapter{}).
+		WithLoggingLevel(badger.ERROR)
+	return badger.Open(options)
+}
 
-	var p = tea.NewProgram(ui.Init(db, *project))
-	p.EnterAltScreen()
-	defer p.ExitAltScreen()
-	if err = p.Start(); err != nil {
-		log.Fatalln(err)
-	}
+type badgerStdLoggerAdapter struct{}
+
+func (b badgerStdLoggerAdapter) Errorf(s string, i ...interface{}) {
+	log.Printf("[ERR] "+s, i...)
+}
+
+func (b badgerStdLoggerAdapter) Warningf(s string, i ...interface{}) {
+	log.Printf("[WARN] "+s, i...)
+}
+
+func (b badgerStdLoggerAdapter) Infof(s string, i ...interface{}) {
+	log.Printf("[INFO] "+s, i...)
+}
+
+func (b badgerStdLoggerAdapter) Debugf(s string, i ...interface{}) {
+	log.Printf("[DEBUG] "+s, i...)
 }
