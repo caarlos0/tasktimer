@@ -45,8 +45,7 @@ var rootCmd = &cobra.Command{
 var reportCmd = &cobra.Command{
 	Use:     "report",
 	Aliases: []string{"r"},
-	Short:   "Print a markdown report of the given project",
-	Args:    cobra.MaximumNArgs(1),
+	Short:   "Print a markdown report of the given project to STDOUT",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		db, err := setup()
 		if err != nil {
