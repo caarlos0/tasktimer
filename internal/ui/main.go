@@ -54,12 +54,12 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
-			return m, sequentially(closeTasks(m.db), tea.Quit)
+			return m, tea.Sequentially(closeTasks(m.db), tea.Quit)
 		case "esc":
-			cmds = append(cmds, sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
+			cmds = append(cmds, tea.Sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
 		case "enter":
 			log.Println("start/stop input")
-			cmds = append(cmds, sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
+			cmds = append(cmds, tea.Sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
 			m.input.SetValue("")
 		}
 	}
@@ -90,17 +90,6 @@ func (m mainModel) View() string {
 }
 
 // cmds
-
-func sequentially(cmds ...tea.Cmd) tea.Cmd {
-	return func() tea.Msg {
-		for _, cmd := range cmds {
-			if msg := cmd(); msg != nil {
-				return msg
-			}
-		}
-		return nil
-	}
-}
 
 func closeTasks(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {

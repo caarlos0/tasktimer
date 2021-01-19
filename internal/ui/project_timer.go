@@ -9,7 +9,6 @@ import (
 
 type projectTimerModel struct {
 	tasks []model.Task
-	d     time.Duration
 }
 
 func (m projectTimerModel) Init() tea.Cmd {
@@ -21,20 +20,19 @@ func (m projectTimerModel) Update(msg tea.Msg) (projectTimerModel, tea.Cmd) {
 	case projectTimerUpdateMsg:
 		m.tasks = msg.tasks
 	}
+	return m, nil
+}
 
-	m.d = time.Duration(0)
+func (m projectTimerModel) View() string {
+	var d = time.Duration(0)
 	for _, t := range m.tasks {
 		var z = t.EndAt
 		if z.IsZero() {
 			z = time.Now()
 		}
-		m.d += z.Sub(t.StartAt)
+		d += z.Sub(t.StartAt)
 	}
-	return m, nil
-}
-
-func (m projectTimerModel) View() string {
-	return midGrayForeground("total: ") + boldSecondaryForeground(m.d.Round(time.Second).String())
+	return midGrayForeground("total: ") + boldSecondaryForeground(d.Round(time.Second).String())
 }
 
 // msgs and cmds
