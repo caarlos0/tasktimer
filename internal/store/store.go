@@ -40,7 +40,6 @@ func GetTaskList(db *badger.DB) ([]model.Task, error) {
 	sort.Slice(tasks, func(i, j int) bool {
 		return tasks[i].StartAt.After(tasks[j].StartAt)
 	})
-	log.Println("loaded", len(tasks), "tasks")
 	return tasks, nil
 }
 
