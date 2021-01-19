@@ -24,7 +24,7 @@ func WriteProjectMarkdown(db *badger.DB, project string, w io.Writer) error {
 			w,
 			"- %s (#%d) - %s\n",
 			task.Title,
-			task.ID,
+			task.ID+1,
 			task.EndAt.Sub(task.StartAt),
 		)
 	}

@@ -62,7 +62,7 @@ func (m taskListModel) View() string {
 			icon = iconDone
 			decorate = faint
 		}
-		s += decorate(fmt.Sprintf("%s #%d %s (%s)", icon, t.ID, t.Title, secondaryForeground(z.Sub(t.StartAt).Round(time.Second).String()))) + "\n"
+		s += decorate(fmt.Sprintf("%s #%d %s (%s)", icon, t.ID+1, t.Title, secondaryForeground(z.Sub(t.StartAt).Round(time.Second).String()))) + "\n"
 	}
 	m.viewport.SetContent(s)
 	return m.viewport.View()
