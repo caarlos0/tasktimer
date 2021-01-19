@@ -51,6 +51,14 @@ current working directory.
 
 At any time, check `--help` to see the available options.
 
+## Install
+
+```sh
+brew install caarlos0/tap/tt
+```
+
+Or use any of the other provided means in the [releases page][releases].
+
 ## FAQ
 
 ### Where is my data stored?
@@ -64,4 +72,9 @@ CLI if you want to.
 
 Yes, they are written to `~/tasktimer/{projectname}.log`.
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/caarlos0/tasktimer.svg)](https://starchart.cc/caarlos0/tasktimer)
+
 [Badger]: https://github.com/dgraph-io/badger
+[releases]:  https://github.com/caarlos0/tasktimer/releases
