@@ -56,16 +56,11 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, sequentially(closeTasks(m.db), tea.Quit)
 		case "esc":
-			m.input.Blur()
 			cmds = append(cmds, sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
 		case "enter":
-			if !m.input.Focused() {
-				m.input.Focus()
-			} else {
-				log.Println("start/stop input")
-				cmds = append(cmds, sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
-				m.input.SetValue("")
-			}
+			log.Println("start/stop input")
+			cmds = append(cmds, sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
+			m.input.SetValue("")
 		}
 	}
 
