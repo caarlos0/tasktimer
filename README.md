@@ -25,12 +25,16 @@ You can just type a small description of what you're working on and press
 <kbd>ENTER</kbd> to start timing.
 
 At any time, press <kbd>ESC</kbd> or <kbd>ENTER</kbd> again to stop the
-current timer:
+current timer or type a new task description and press <kbd>ENTER</kbd>
+to stop the previous task and start the new one.
 
 Each task will have its own timer, and the sum of all tasks will be displayed
 in the header (along with a clock and the project name):
 
 <img width="1279" alt="image" src="https://user-images.githubusercontent.com/245435/104979802-e804a980-59e3-11eb-8d79-51ac7b272c31.png">
+
+At any time, press <kbd>CTRL</kbd>+<kbd>c</kbd> to stop the current
+timer (if any) and exit.
 
 ## Report
 
