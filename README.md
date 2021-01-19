@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/release/caarlos0/tasktimer.svg?style=flat-square)](https://github.com/caarlos0/tasktimer/releases/latest)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build](https://img.shields.io/github/checks-status/caarlos0/tasktimer/master?style=flat-square)](https://github.com/caarlos0/tasktimer/actions)
+[![Build](https://img.shields.io/github/workflow/status/caarlos0/tasktimer/build?style=flat-square)](https://github.com/caarlos0/tasktimer/actions?query=workflow%3Abuild)
 [![Go Report Card](https://goreportcard.com/badge/github.com/caarlos0/tasktimer?style=flat-square)](https://goreportcard.com/report/github.com/caarlos0/tasktimer)
 [![Godoc](https://godoc.org/github.com/caarlos0/tasktimer?status.svg&style=flat-square)](http://godoc.org/github.com/caarlos0/tasktimer)
 [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=flat-square)](https://github.com/goreleaser)
