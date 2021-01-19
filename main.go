@@ -12,14 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	project string
-	output  string
-)
+var project string
 
 func main() {
 	rootCmd.PersistentFlags().StringVarP(&project, "project", "p", "default", "Project name")
-	reportCmd.PersistentFlags().StringVarP(&output, "output", "o", "", "Where to save the markdown report file (default \"{project}.md\")")
 
 	rootCmd.AddCommand(reportCmd, completionsCmd)
 
@@ -50,6 +46,7 @@ var reportCmd = &cobra.Command{
 	Use:     "report",
 	Aliases: []string{"r"},
 	Short:   "Print a markdown report of the given project",
+	Args:    cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		db, err := setup()
 		if err != nil {
@@ -57,18 +54,7 @@ var reportCmd = &cobra.Command{
 		}
 		defer db.Close()
 
-		if output == "" {
-			output = project + ".md"
-		}
-
-		f, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		fmt.Println("writing project to", output)
-		return ui.WriteProjectMarkdown(db, project, f)
+		return ui.WriteProjectMarkdown(db, project, os.Stdout)
 	},
 }
 
@@ -85,10 +71,7 @@ func setup() (*badger.DB, error) {
 
 	log.SetFlags(0)
 
-	var logfile = filepath.Join(folder, project+".log")
-	log.Println("logging to", logfile)
-
-	f, err := tea.LogToFile(logfile, "")
+	f, err := tea.LogToFile(filepath.Join(folder, project+".log"), "")
 	defer f.Close()
 
 	var options = badger.DefaultOptions(filepath.Join(folder, project+".db")).
