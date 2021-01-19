@@ -44,8 +44,8 @@ You can extract a markdown file by running:
 tt report
 ```
 
-If ran with no additional flags, it will create a `default.md` in the
-current working directory.
+It will output the given project (via `-p PROJECT`) to `STDOUT`. You can
+then save it to a file, pipe to another software or do whatever you like.
 
 ## Help
 
