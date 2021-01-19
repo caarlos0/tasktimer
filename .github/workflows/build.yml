@@ -35,7 +35,7 @@ jobs:
         run: |
           go mod tidy
           go test -v ./...
-          bo build -o tt .
+          go build -o tt .
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
