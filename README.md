@@ -45,7 +45,10 @@ tt report
 ```
 
 It will output the given project (via `-p PROJECT`) to `STDOUT`. You can
-then save it to a file, pipe to another software or do whatever you like.
+then save it to a file, pipe to another software or do whatever you like:
+
+<img width="1279" alt="image" src="https://user-images.githubusercontent.com/245435/105107871-c2d17300-5a97-11eb-92d3-b35356a98adc.png">
+
 
 ## Help
 
