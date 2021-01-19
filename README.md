@@ -7,7 +7,7 @@
 [![Godoc](https://godoc.org/github.com/caarlos0/tasktimer?status.svg&style=flat-square)](http://godoc.org/github.com/caarlos0/tasktimer)
 [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=flat-square)](https://github.com/goreleaser)
 
-A dead simple task timer.
+Task Timer (`tt`) is a dead simple TUI task timer
 
 ## Usage
 
