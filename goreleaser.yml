@@ -1,3 +1,4 @@
+project_name: tt
 before:
   hooks:
     - go mod download
