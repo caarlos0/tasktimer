@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/caarlos0/tasktimer/internal/store"
 	"github.com/dgraph-io/badger/v3"
@@ -17,6 +18,7 @@ func WriteProjectMarkdown(db *badger.DB, project string, w io.Writer) error {
 	}
 
 	_, _ = fmt.Fprintln(w, "# "+project+"\n")
+	_, _ = fmt.Fprintf(w, "> Total time: %s\n\n", sumTasksTimes(tasks).Round(time.Second).String())
 	for _, task := range tasks {
 		_, _ = fmt.Fprintf(
 			w,

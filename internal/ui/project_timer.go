@@ -24,15 +24,7 @@ func (m projectTimerModel) Update(msg tea.Msg) (projectTimerModel, tea.Cmd) {
 }
 
 func (m projectTimerModel) View() string {
-	var d = time.Duration(0)
-	for _, t := range m.tasks {
-		var z = t.EndAt
-		if z.IsZero() {
-			z = time.Now()
-		}
-		d += z.Sub(t.StartAt)
-	}
-	return midGrayForeground("total: ") + boldSecondaryForeground(d.Round(time.Second).String())
+	return midGrayForeground("total: ") + boldSecondaryForeground(sumTasksTimes(m.tasks).Round(time.Second).String())
 }
 
 // msgs and cmds
@@ -45,4 +37,16 @@ func updateProjectTimerCmd(tasks []model.Task) tea.Cmd {
 	return func() tea.Msg {
 		return projectTimerUpdateMsg{tasks}
 	}
+}
+
+func sumTasksTimes(tasks []model.Task) time.Duration {
+	var d = time.Duration(0)
+	for _, t := range tasks {
+		var z = t.EndAt
+		if z.IsZero() {
+			z = time.Now()
+		}
+		d += z.Sub(t.StartAt)
+	}
+	return d
 }
