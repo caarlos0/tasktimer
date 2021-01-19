@@ -61,16 +61,42 @@ Or use any of the other provided means in the [releases page][releases].
 
 ## FAQ
 
-### Where is my data stored?
+### Where are data and logs stored?
 
-Data is stored in `~/tasktimer/{projectname}.db`.
+Depends on the OS, but you can see yours running:
 
-[Badger][] is used as database, which means you can open it with the badger
-CLI if you want to.
+```sh
+tt paths
+```
 
-### Are there any logs?
+## Upgrades
 
-Yes, they are written to `~/tasktimer/{projectname}.log`.
+### From 1.0.x to 1.1.x
+
+Data was moved from `~/tasktimer` to user data and user logs dir according to
+the OS.
+
+To move, run:
+
+```sh
+tt paths
+```
+
+It will print something like this:
+
+```
+Database path: /Users/carlos/Library/Application Support/tasktimer/default.db
+Log path:      /Users/carlos/Library/Logs/tasktimer/default.log
+```
+
+We only need to migrate the data, so:
+
+```sh
+rm -rf "/Users/carlos/Library/Application Support/tasktimer/"*.db # make sure its empty
+cp -rf ~/tasktimer/*.db "/Users/carlos/Library/Application Support/tasktimer/" # copy data
+rm -rf ~/tasktimer # delete old folder
+
+```
 
 ## Stargazers over time
 
