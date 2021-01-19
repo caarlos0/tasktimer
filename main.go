@@ -99,6 +99,7 @@ func setup() (*badger.DB, io.Closer, error) {
 	log.SetFlags(0)
 	f, err := tea.LogToFile(logfile, "")
 
+	// TODO: maybe sync writes?
 	var options = badger.DefaultOptions(dbfile).
 		WithLogger(badgerStdLoggerAdapter{}).
 		WithLoggingLevel(badger.ERROR)
@@ -129,11 +130,11 @@ var completionsCmd = &cobra.Command{
 	Short: "Print shell autocompletion scripts for tt",
 	Long: `To load completions:
 Bash:
-$ source <(goreleaser completion bash)
-# To load completions for each session, execute once:
-Linux:
+  $ source <(tt completion bash)
+  # To load completions for each session, execute once:
+  Linux:
   $ tt completion bash > /etc/bash_completion.d/tt
-MacOS:
+  MacOS:
   $ tt completion bash > /usr/local/etc/bash_completion.d/tt
 Zsh:
   # If shell completion is not already enabled in your environment you will need
