@@ -22,9 +22,13 @@ func WriteProjectMarkdown(db *badger.DB, project string, w io.Writer) error {
 	}
 
 	_, _ = fmt.Fprintln(w, "# "+project+"\n")
-	_, _ = fmt.Fprintf(w, "> Total time: %s\n", sumTasksTimes(tasks).Round(time.Second).String())
-	_, _ = fmt.Fprintf(w, "> From: %s\n", tasks[len(tasks)-1].StartAt.Format(time.UnixDate))
-	_, _ = fmt.Fprintf(w, "> To: %s\n\n", tasks[0].EndAt.Format(time.UnixDate))
+	_, _ = fmt.Fprintf(
+		w,
+		"> Total time **%s**, timed between **%s** and **%s**\n\n",
+		sumTasksTimes(tasks).Round(time.Second).String(),
+		tasks[len(tasks)-1].StartAt.Format(time.Stamp),
+		tasks[0].EndAt.Format(time.Stamp),
+	)
 
 	for _, task := range tasks {
 		_, _ = fmt.Fprintf(
