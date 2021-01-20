@@ -14,7 +14,6 @@ import (
 
 type taskListModel struct {
 	db       *badger.DB
-	tasks    []model.Task
 	viewport viewport.Model
 	ready    bool
 }
@@ -41,8 +40,8 @@ func (m taskListModel) Update(msg tea.Msg) (taskListModel, tea.Cmd) {
 	case updateTaskListMsg:
 		cmds = append(cmds, updateTaskListCmd(m.db))
 	case taskListUpdatedMsg:
-		m.tasks = msg.tasks
-		cmds = append(cmds, updateProjectTimerCmd(m.tasks))
+		m.viewport.SetContent(taskList(msg.tasks))
+		cmds = append(cmds, updateProjectTimerCmd(msg.tasks))
 	}
 
 	var cmd tea.Cmd
@@ -52,8 +51,12 @@ func (m taskListModel) Update(msg tea.Msg) (taskListModel, tea.Cmd) {
 }
 
 func (m taskListModel) View() string {
+	return m.viewport.View()
+}
+
+func taskList(tasks []model.Task) string {
 	var s string
-	for _, t := range m.tasks {
+	for _, t := range tasks {
 		var z = time.Now()
 		var icon = iconOngoing
 		var decorate = bold
@@ -64,8 +67,7 @@ func (m taskListModel) View() string {
 		}
 		s += decorate(fmt.Sprintf("%s #%d %s (%s)", icon, t.ID+1, t.Title, secondaryForeground(z.Sub(t.StartAt).Round(time.Second).String()))) + "\n"
 	}
-	m.viewport.SetContent(s)
-	return m.viewport.View()
+	return s
 }
 
 // msgs
