@@ -16,6 +16,7 @@ type taskListModel struct {
 	db       *badger.DB
 	viewport viewport.Model
 	ready    bool
+	tasks    []model.Task
 }
 
 func (m taskListModel) Init() tea.Cmd {
@@ -40,11 +41,12 @@ func (m taskListModel) Update(msg tea.Msg) (taskListModel, tea.Cmd) {
 	case updateTaskListMsg:
 		cmds = append(cmds, updateTaskListCmd(m.db))
 	case taskListUpdatedMsg:
-		m.viewport.SetContent(taskList(msg.tasks))
-		cmds = append(cmds, updateProjectTimerCmd(msg.tasks))
+		m.tasks = msg.tasks
+		cmds = append(cmds, updateProjectTimerCmd(m.tasks))
 	}
 
 	var cmd tea.Cmd
+	m.viewport.SetContent(taskList(m.tasks))
 	m.viewport, cmd = m.viewport.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
