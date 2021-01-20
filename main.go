@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/caarlos0/tasktimer/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
@@ -96,8 +97,14 @@ func setup() (*badger.DB, io.Closer, error) {
 		return nil, nil, err
 	}
 
-	log.SetFlags(0)
-	f, err := tea.LogToFile(logfile, "")
+	if err := os.MkdirAll(filepath.Dir(logfile), 0754); err != nil {
+		return nil, nil, err
+	}
+
+	f, err := tea.LogToFile(logfile, "tasktimer")
+	if err != nil {
+		return nil, nil, err
+	}
 
 	// TODO: maybe sync writes?
 	var options = badger.DefaultOptions(dbfile).
