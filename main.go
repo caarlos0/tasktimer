@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -9,7 +10,9 @@ import (
 
 	"github.com/caarlos0/tasktimer/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/dgraph-io/badger/v3"
+	"github.com/mattn/go-isatty"
 	gap "github.com/muesli/go-app-paths"
 	"github.com/spf13/cobra"
 )
@@ -57,7 +60,22 @@ var reportCmd = &cobra.Command{
 		defer db.Close()
 		defer f.Close()
 
-		return ui.WriteProjectMarkdown(db, project, os.Stdout)
+		var b bytes.Buffer
+		if err := ui.WriteProjectMarkdown(db, project, &b); err != nil {
+			return err
+		}
+
+		var out = b.String()
+		if isatty.IsTerminal(os.Stdout.Fd()) {
+			outs, err := glamour.Render(out, "auto")
+			if err != nil {
+				return err
+			}
+			out = outs
+		}
+
+		fmt.Print(out)
+		return nil
 	},
 }
 
