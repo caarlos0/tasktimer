@@ -60,21 +60,22 @@ var reportCmd = &cobra.Command{
 		defer db.Close()
 		defer f.Close()
 
-		var b bytes.Buffer
-		if err := ui.WriteProjectMarkdown(db, project, &b); err != nil {
+		var buf bytes.Buffer
+		if err := ui.WriteProjectMarkdown(db, project, &buf); err != nil {
 			return err
 		}
 
-		var out = b.String()
+		var md = buf.String()
+
 		if isatty.IsTerminal(os.Stdout.Fd()) {
-			outs, err := glamour.Render(out, "auto")
+			rendered, err := glamour.RenderWithEnvironmentConfig(md)
 			if err != nil {
 				return err
 			}
-			out = outs
+			md = rendered
 		}
 
-		fmt.Print(out)
+		fmt.Print(md)
 		return nil
 	},
 }
