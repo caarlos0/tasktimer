@@ -28,8 +28,10 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 		exit: exit,
 	}
 	var cmd = &cobra.Command{
-		Use:   "tt",
-		Short: "Task Timer (tt) is a dead simple TUI task timer",
+		Use:          "tt",
+		Short:        "Task Timer (tt) is a dead simple TUI task timer",
+		Version:      version,
+		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			db, f, err := setup(root.project)
 			if err != nil {
