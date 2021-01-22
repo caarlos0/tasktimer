@@ -47,6 +47,7 @@ func (m taskListModel) Update(msg tea.Msg) (taskListModel, tea.Cmd) {
 
 	var cmd tea.Cmd
 	m.viewport.SetContent(taskList(m.tasks))
+	m.viewport.GotoTop()
 	m.viewport, cmd = m.viewport.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
