@@ -24,7 +24,7 @@ You'll be presented with something like this:
 You can just type a small description of what you're working on and press
 <kbd>ENTER</kbd> to start timing.
 
-At any time, press <kbd>ESC</kbd> or <kbd>ENTER</kbd> again to stop the
+At any time, press <kbd>ENTER</kbd> again to stop the
 current timer or type a new task description and press <kbd>ENTER</kbd>
 to stop the previous task and start the new one.
 
@@ -35,6 +35,10 @@ in the header (along with a clock and the project name):
 
 At any time, press <kbd>CTRL</kbd>+<kbd>c</kbd> to stop the current
 timer (if any) and exit.
+
+You can also press <kbd>ESC</kbd> stop the current task and blur the input
+field and navigate  around a long list of tasks using the
+arrow keys/page up/page down/etc.
 
 ## Report
 

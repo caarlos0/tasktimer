@@ -47,27 +47,46 @@ func (m mainModel) Init() tea.Cmd {
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
+	var cmd tea.Cmd
 
-	switch msg := msg.(type) {
+	switch msg2 := msg.(type) {
 	case errMsg:
-		m.err = msg.error
+		m.err = msg2.error
 	case tea.KeyMsg:
-		switch msg.String() {
+		switch msg2.String() {
 		case "ctrl+c":
 			return m, tea.Sequentially(closeTasks(m.db), tea.Quit)
 		case "esc":
+			log.Println("stop timer")
 			cmds = append(cmds, tea.Sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
+			m.input.Blur()
 		case "enter":
-			log.Println("start/stop input")
-			cmds = append(cmds, tea.Sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
-			m.input.SetValue("")
+			if !m.input.Focused() {
+				m.input.Focus()
+			} else {
+				log.Println("start/stop timer")
+				cmds = append(cmds, tea.Sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
+				m.input.SetValue("")
+			}
+		default:
+			if m.input.Focused() {
+				// only send key presses to input if it is focused
+				m.input, cmd = m.input.Update(msg)
+				cmds = append(cmds, cmd)
+				msg = nil
+			} else {
+				// only send key presses to list if input is not focused
+				m.list, cmd = m.list.Update(msg)
+				cmds = append(cmds, cmd)
+			}
 		}
+	default:
+		// if its not a keypress, we gotta update the list
+		m.list, cmd = m.list.Update(msg)
+		cmds = append(cmds, cmd)
 	}
 
-	var cmd tea.Cmd
 	m.timer, cmd = m.timer.Update(msg)
-	cmds = append(cmds, cmd)
-	m.list, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 	m.input, cmd = m.input.Update(msg)
 	cmds = append(cmds, cmd)

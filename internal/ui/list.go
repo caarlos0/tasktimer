@@ -40,6 +40,7 @@ func (m taskListModel) Update(msg tea.Msg) (taskListModel, tea.Cmd) {
 		}
 	case updateTaskListMsg:
 		cmds = append(cmds, updateTaskListCmd(m.db))
+		m.viewport.GotoTop()
 	case taskListUpdatedMsg:
 		m.tasks = msg.tasks
 		cmds = append(cmds, updateProjectTimerCmd(m.tasks))
@@ -47,7 +48,6 @@ func (m taskListModel) Update(msg tea.Msg) (taskListModel, tea.Cmd) {
 
 	var cmd tea.Cmd
 	m.viewport.SetContent(taskList(m.tasks))
-	m.viewport.GotoTop()
 	m.viewport, cmd = m.viewport.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
