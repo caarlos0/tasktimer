@@ -49,7 +49,7 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 
 	cmd.PersistentFlags().StringVarP(&root.project, "project", "p", "default", "Project name")
 
-	cmd.AddCommand(newRerportCmd().cmd, newCompletionCmd().cmd, newPathsCmd().cmd)
+	cmd.AddCommand(newRerportCmd().cmd, newCompletionCmd().cmd, newPathsCmd().cmd, newToJSONCmd().cmd, newFromJSONCmd().cmd)
 
 	root.cmd = cmd
 	return root
