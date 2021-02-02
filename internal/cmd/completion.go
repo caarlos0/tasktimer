@@ -32,6 +32,7 @@ Fish:
 `,
 		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
+		Hidden:                true,
 		ValidArgs:             []string{"bash", "zsh", "fish"},
 		Args:                  cobra.ExactValidArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
