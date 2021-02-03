@@ -2,6 +2,7 @@ package store
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"sort"
 	"strconv"
@@ -93,5 +94,34 @@ func CreateTask(db *badger.DB, t string) error {
 			Title:   t,
 			StartAt: time.Now(),
 		}.Bytes())
+	})
+}
+
+func LoadTasks(db *badger.DB, tasks []model.Task) error {
+	return db.Update(func(txn *badger.Txn) error {
+		seq, err := db.GetSequence(sequenceID, 100)
+		if err != nil {
+			return err
+		}
+		defer seq.Release()
+
+		for _, t := range tasks {
+			s, err := seq.Next()
+			if err != nil {
+				return err
+			}
+			var id = string(prefix) + strconv.FormatUint(s, 10)
+			log.Println("creating task:", id, "->", t)
+			if err := txn.Set([]byte(id), model.Task{
+				ID:      s,
+				Title:   t.Title,
+				StartAt: t.StartAt,
+				EndAt:   t.EndAt,
+			}.Bytes()); err != nil {
+				return fmt.Errorf("failed to create task: %w", err)
+			}
+		}
+
+		return nil
 	})
 }
