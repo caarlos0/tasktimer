@@ -12,11 +12,11 @@ type toJSONCmd struct {
 }
 
 func newToJSONCmd() *toJSONCmd {
-	var cmd = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "to-json",
 		Short: "Exports the database as JSON",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var project = cmd.Parent().Flag("project").Value.String()
+			project := cmd.Parent().Flag("project").Value.String()
 			db, f, err := setup(project)
 			if err != nil {
 				return err

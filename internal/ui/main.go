@@ -13,7 +13,7 @@ import (
 )
 
 func Init(db *badger.DB, project string) tea.Model {
-	var input = textinput.NewModel()
+	input := textinput.NewModel()
 	input.Placeholder = "New task description..."
 	input.Focus()
 	input.CharLimit = 250

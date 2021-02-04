@@ -16,12 +16,12 @@ type reportCmd struct {
 }
 
 func newRerportCmd() *reportCmd {
-	var cmd = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:     "report",
 		Aliases: []string{"r"},
 		Short:   "Print a markdown report of the given project to STDOUT",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var project = cmd.Parent().Flag("project").Value.String()
+			project := cmd.Parent().Flag("project").Value.String()
 			db, f, err := setup(project)
 			if err != nil {
 				return err
@@ -34,7 +34,7 @@ func newRerportCmd() *reportCmd {
 				return err
 			}
 
-			var md = buf.String()
+			md := buf.String()
 
 			if isatty.IsTerminal(os.Stdout.Fd()) {
 				rendered, err := glamour.RenderWithEnvironmentConfig(md)

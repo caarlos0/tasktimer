@@ -12,16 +12,18 @@ import (
 	"github.com/dgraph-io/badger/v3"
 )
 
-var prefix = []byte("tasks.")
-var sequenceID = []byte("tasks_seq")
+var (
+	prefix     = []byte("tasks.")
+	sequenceID = []byte("tasks_seq")
+)
 
 func GetTaskList(db *badger.DB) ([]model.Task, error) {
 	var tasks []model.Task
 	if err := db.View(func(txn *badger.Txn) error {
-		var it = txn.NewIterator(badger.DefaultIteratorOptions)
+		it := txn.NewIterator(badger.DefaultIteratorOptions)
 		defer it.Close()
 		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
-			var item = it.Item()
+			item := it.Item()
 			err := item.Value(func(v []byte) error {
 				var task model.Task
 				if err := json.Unmarshal(v, &task); err != nil {
@@ -46,11 +48,11 @@ func GetTaskList(db *badger.DB) ([]model.Task, error) {
 
 func CloseTasks(db *badger.DB) error {
 	return db.Update(func(txn *badger.Txn) error {
-		var it = txn.NewIterator(badger.DefaultIteratorOptions)
+		it := txn.NewIterator(badger.DefaultIteratorOptions)
 		defer it.Close()
 		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
-			var item = it.Item()
-			var k = item.Key()
+			item := it.Item()
+			k := item.Key()
 			err := item.Value(func(v []byte) error {
 				var task model.Task
 				if err := json.Unmarshal(v, &task); err != nil {
@@ -87,7 +89,7 @@ func CreateTask(db *badger.DB, t string) error {
 			return err
 		}
 
-		var id = string(prefix) + strconv.FormatUint(s, 10)
+		id := string(prefix) + strconv.FormatUint(s, 10)
 		log.Println("creating task:", id, "->", t)
 		return txn.Set([]byte(id), model.Task{
 			ID:      s,
@@ -97,7 +99,10 @@ func CreateTask(db *badger.DB, t string) error {
 	})
 }
 
-func LoadTasks(db *badger.DB, tasks []model.Task) error {
+func LoadTasks(db *badger.DB, tasks []model.ExportedTask) error {
+	sort.Slice(tasks, func(i, j int) bool {
+		return tasks[i].StartAt.Before(tasks[j].StartAt)
+	})
 	return db.Update(func(txn *badger.Txn) error {
 		seq, err := db.GetSequence(sequenceID, 100)
 		if err != nil {
@@ -110,7 +115,7 @@ func LoadTasks(db *badger.DB, tasks []model.Task) error {
 			if err != nil {
 				return err
 			}
-			var id = string(prefix) + strconv.FormatUint(s, 10)
+			id := string(prefix) + strconv.FormatUint(s, 10)
 			log.Println("creating task:", id, "->", t)
 			if err := txn.Set([]byte(id), model.Task{
 				ID:      s,

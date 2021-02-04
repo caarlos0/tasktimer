@@ -7,7 +7,7 @@ type completionCmd struct {
 }
 
 func newCompletionCmd() *completionCmd {
-	var cmd = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "completion [bash|zsh|fish]",
 		Short: "Print shell autocompletion scripts for tt",
 		Long: `To load completions:

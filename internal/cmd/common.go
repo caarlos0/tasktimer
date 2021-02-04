@@ -11,7 +11,7 @@ import (
 )
 
 func paths(project string) (string, string, error) {
-	var home = gap.NewScope(gap.User, "tasktimer")
+	home := gap.NewScope(gap.User, "tasktimer")
 
 	logfile, err := home.LogPath(project + ".log")
 	if err != nil {
@@ -32,7 +32,7 @@ func setup(project string) (*badger.DB, io.Closer, error) {
 		return nil, nil, err
 	}
 
-	if err := os.MkdirAll(filepath.Dir(logfile), 0754); err != nil {
+	if err := os.MkdirAll(filepath.Dir(logfile), 0o754); err != nil {
 		return nil, nil, err
 	}
 
@@ -42,7 +42,7 @@ func setup(project string) (*badger.DB, io.Closer, error) {
 	}
 
 	// TODO: maybe sync writes?
-	var options = badger.DefaultOptions(dbfile).
+	options := badger.DefaultOptions(dbfile).
 		WithLogger(badgerStdLoggerAdapter{}).
 		WithLoggingLevel(badger.ERROR)
 	db, err := badger.Open(options)

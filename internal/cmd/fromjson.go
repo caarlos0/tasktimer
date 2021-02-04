@@ -16,12 +16,12 @@ type fromJSONCmd struct {
 }
 
 func newFromJSONCmd() *fromJSONCmd {
-	var cmd = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "from-json",
 		Short: "Imports a JSON into a project - WARNING: it will wipe the project first, use with care!",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var project = cmd.Parent().Flag("project").Value.String()
+			project := cmd.Parent().Flag("project").Value.String()
 			db, f, err := setup(project)
 			if err != nil {
 				return err
@@ -34,7 +34,7 @@ func newFromJSONCmd() *fromJSONCmd {
 				return fmt.Errorf("failed to read %s: %w", args[0], err)
 			}
 
-			var tasks []model.Task
+			var tasks []model.ExportedTask
 			if err := json.Unmarshal(input, &tasks); err != nil {
 				return fmt.Errorf("input json is not in the correct format: %w", err)
 			}

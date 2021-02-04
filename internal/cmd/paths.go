@@ -11,11 +11,11 @@ type pathsCmd struct {
 }
 
 func newPathsCmd() *pathsCmd {
-	var cmd = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "paths",
 		Short: "Print the paths being used for logs, data et al",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var project = cmd.Parent().Flag("project").Value.String()
+			project := cmd.Parent().Flag("project").Value.String()
 			logfile, dbfile, err := paths(project)
 			if err != nil {
 				return err

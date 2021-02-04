@@ -26,8 +26,8 @@ func WriteProjectMarkdown(db *badger.DB, project string, w io.Writer) error {
 		w,
 		"> Total time **%s**, timed between **%s** and **%s**\n\n",
 		sumTasksTimes(tasks).Round(time.Second).String(),
-		tasks[len(tasks)-1].StartAt.Format(time.Stamp),
-		tasks[0].EndAt.Format(time.Stamp),
+		tasks[len(tasks)-1].StartAt.Format("2006-01-02"),
+		tasks[0].EndAt.Format("2006-01-02"),
 	)
 
 	for _, task := range tasks {

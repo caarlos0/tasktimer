@@ -20,3 +20,17 @@ func (t Task) Bytes() []byte {
 	}
 	return bts
 }
+
+type ExportedTask struct {
+	Title   string    `json:"desc"`
+	StartAt time.Time `json:"start"`
+	EndAt   time.Time `json:"end"`
+}
+
+func (t ExportedTask) Bytes() []byte {
+	bts, err := json.Marshal(&t)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return bts
+}

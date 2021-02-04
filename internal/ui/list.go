@@ -60,9 +60,9 @@ func (m taskListModel) View() string {
 func taskList(tasks []model.Task) string {
 	var s string
 	for _, t := range tasks {
-		var z = time.Now()
-		var icon = iconOngoing
-		var decorate = bold
+		z := time.Now()
+		icon := iconOngoing
+		decorate := bold
 		if !t.EndAt.IsZero() {
 			z = t.EndAt
 			icon = iconDone

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 
+	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
 	"github.com/dgraph-io/badger/v3"
 )
@@ -16,7 +17,15 @@ func WriteProjectJSON(db *badger.DB, project string, w io.Writer) error {
 		return err
 	}
 
-	bts, err := json.Marshal(tasks)
+	var expTasks []model.ExportedTask
+	for _, t := range tasks {
+		expTasks = append(expTasks, model.ExportedTask{
+			Title:   t.Title,
+			StartAt: t.StartAt,
+			EndAt:   t.EndAt,
+		})
+	}
+	bts, err := json.Marshal(expTasks)
 	if err != nil {
 		return err
 	}

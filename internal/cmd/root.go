@@ -24,10 +24,10 @@ func (c rootCmd) Execute(args []string) {
 }
 
 func newRootCmd(version string, exit func(int)) *rootCmd {
-	var root = &rootCmd{
+	root := &rootCmd{
 		exit: exit,
 	}
-	var cmd = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:          "tt",
 		Short:        "Task Timer (tt) is a dead simple TUI task timer",
 		Version:      version,
@@ -40,7 +40,7 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 			defer db.Close()
 			defer f.Close()
 
-			var p = tea.NewProgram(ui.Init(db, root.project))
+			p := tea.NewProgram(ui.Init(db, root.project))
 			p.EnterAltScreen()
 			defer p.ExitAltScreen()
 			return p.Start()
