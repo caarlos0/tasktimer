@@ -13,7 +13,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.4 // indirect
 	github.com/muesli/go-app-paths v0.2.1
 	github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68
-	github.com/muesli/termenv v0.7.4
+	github.com/muesli/termenv v0.8.0
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1 // indirect
 )
