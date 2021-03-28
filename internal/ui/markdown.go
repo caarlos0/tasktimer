@@ -36,7 +36,7 @@ func WriteProjectMarkdown(db *badger.DB, project string, w io.Writer) error {
 			"- [x] #%d %s - %s\n",
 			task.ID+1,
 			task.Title,
-			task.EndAt.Sub(task.StartAt),
+			task.EndAt.Sub(task.StartAt).Round(time.Second),
 		)
 	}
 
