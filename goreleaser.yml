@@ -5,6 +5,10 @@ before:
     - ./scripts/completions.sh
 builds:
 - binary: tt
+  goos:
+  - linux
+  - windows
+  - darwin
   goarch:
   - amd64
   - arm64
