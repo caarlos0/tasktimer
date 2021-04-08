@@ -1,6 +1,6 @@
 module github.com/caarlos0/tasktimer
 
-go 1.15
+go 1.16
 
 require (
 	github.com/alecthomas/chroma v0.8.0 // indirect
