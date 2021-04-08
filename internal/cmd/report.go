@@ -20,6 +20,7 @@ func newRerportCmd() *reportCmd {
 		Use:     "report",
 		Aliases: []string{"r"},
 		Short:   "Print a markdown report of the given project to STDOUT",
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			project := cmd.Parent().Flag("project").Value.String()
 			db, f, err := setup(project)

@@ -25,7 +25,7 @@ func WriteProjectJSON(db *badger.DB, project string, w io.Writer) error {
 			EndAt:   t.EndAt,
 		})
 	}
-	bts, err := json.Marshal(expTasks)
+	bts, err := json.MarshalIndent(expTasks, "", "  ")
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
@@ -29,7 +30,7 @@ func newFromJSONCmd() *fromJSONCmd {
 			defer db.Close()
 			defer f.Close()
 
-			input, err := ioutil.ReadFile(args[0])
+			input, err := os.ReadFile(args[0])
 			if err != nil {
 				return fmt.Errorf("failed to read %s: %w", args[0], err)
 			}
