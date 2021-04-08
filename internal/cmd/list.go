@@ -21,6 +21,7 @@ func newListCmd() *listCmd {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all projects",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			home := gap.NewScope(gap.User, "tasktimer")
 			datas, err := home.DataDirs()

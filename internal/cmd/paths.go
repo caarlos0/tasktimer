@@ -14,6 +14,7 @@ func newPathsCmd() *pathsCmd {
 	cmd := &cobra.Command{
 		Use:   "paths",
 		Short: "Print the paths being used for logs, data et al",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			project := cmd.Parent().Flag("project").Value.String()
 			logfile, dbfile, err := paths(project)
