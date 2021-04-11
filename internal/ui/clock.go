@@ -24,7 +24,7 @@ func (m clockModel) Update(msg tea.Msg) (clockModel, tea.Cmd) {
 }
 
 func (m clockModel) View() string {
-	return grayForeground(m.t.Format("15:04:05"))
+	return secondaryForeground.Render(m.t.Format("15:04:05"))
 }
 
 // msgs and cmds

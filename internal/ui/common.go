@@ -1,54 +1,39 @@
 package ui
 
-import "github.com/muesli/termenv"
+import (
+	"github.com/charmbracelet/lipgloss"
+)
 
+// light palette: https://colorhunt.co/palette/201882
+// dark palette:  https://colorhunt.co/palette/273948
 var (
-	primary   = termenv.ColorProfile().Color("205")
-	secondary = termenv.ColorProfile().Color("#89F0CB")
-	gray      = termenv.ColorProfile().Color("#626262")
-	midGray   = termenv.ColorProfile().Color("#4A4A4A")
-	red       = termenv.ColorProfile().Color("#ED567A")
+	primaryColor = lipgloss.AdaptiveColor{
+		Light: "#1a1a2e",
+		Dark:  "#f7f3e9",
+	}
+	secondaryColor = lipgloss.AdaptiveColor{
+		Light: "#16213e",
+		Dark:  "#a3d2ca",
+	}
+	activeColor = lipgloss.AdaptiveColor{
+		Light: "#16213e",
+		Dark:  "#5eaaa8",
+	}
+	errorColor = lipgloss.AdaptiveColor{
+		Light: "#e94560",
+		Dark:  "#f05945",
+	}
+
+	secondaryForeground   = lipgloss.NewStyle().Foreground(secondaryColor)
+	primaryForegroundBold = lipgloss.NewStyle().Bold(true).Foreground(primaryColor)
+	activeForeground      = lipgloss.NewStyle().Bold(true).Foreground(activeColor)
+	activeForegroundBold  = lipgloss.NewStyle().Bold(true).Foreground(activeColor)
+	errorFaintForeground  = lipgloss.NewStyle().Foreground(errorColor).Faint(true)
+	errorForegroundPadded = lipgloss.NewStyle().Padding(4).Foreground(errorColor)
+	separator             = secondaryForeground.Render(" • ")
 )
 
 const (
 	iconDone    = "●"
 	iconOngoing = "○"
 )
-
-var separator = midGrayForeground(" • ")
-
-func redForeground(s string) string {
-	return termenv.String(s).Foreground(red).String()
-}
-
-func redFaintForeground(s string) string {
-	return termenv.String(s).Foreground(red).Faint().String()
-}
-
-func boldPrimaryForeground(s string) string {
-	return termenv.String(s).Foreground(primary).Bold().String()
-}
-
-func boldSecondaryForeground(s string) string {
-	return termenv.String(s).Foreground(secondary).Bold().String()
-}
-
-func secondaryForeground(s string) string {
-	return termenv.String(s).Foreground(secondary).String()
-}
-
-func grayForeground(s string) string {
-	return termenv.String(s).Foreground(gray).String()
-}
-
-func midGrayForeground(s string) string {
-	return termenv.String(s).Foreground(midGray).String()
-}
-
-func faint(s string) string {
-	return termenv.String(s).Faint().String()
-}
-
-func bold(s string) string {
-	return termenv.String(s).Bold().String()
-}
