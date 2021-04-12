@@ -67,8 +67,8 @@ func taskList(tasks []model.Task) string {
 		if !t.EndAt.IsZero() {
 			z = t.EndAt
 			icon = iconDone
-			textStyle = secondaryForeground
-			clockStyle = activeForeground
+			textStyle = textStyle.Copy().Faint(true).Bold(false)
+			clockStyle = clockStyle.Copy().Faint(true).Bold(false)
 		}
 		s += textStyle.Render(fmt.Sprintf("%s #%d %s ", icon, t.ID+1, t.Title)) +
 			clockStyle.Render(z.Sub(t.StartAt).Round(time.Second).String()) +

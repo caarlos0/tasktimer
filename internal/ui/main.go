@@ -3,7 +3,6 @@ package ui
 import (
 	"log"
 	"strings"
-	"time"
 
 	"github.com/caarlos0/tasktimer/internal/store"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -20,7 +19,6 @@ func Init(db *badger.DB, project string) tea.Model {
 	input.Width = 50
 
 	return mainModel{
-		clock: clockModel{time.Now()},
 		list: taskListModel{
 			db: db,
 		},
@@ -32,7 +30,6 @@ func Init(db *badger.DB, project string) tea.Model {
 }
 
 type mainModel struct {
-	clock   clockModel
 	input   textinput.Model
 	list    taskListModel
 	timer   projectTimerModel
@@ -42,7 +39,7 @@ type mainModel struct {
 }
 
 func (m mainModel) Init() tea.Cmd {
-	return tea.Batch(m.list.Init(), m.clock.Init(), textinput.Blink)
+	return tea.Batch(m.list.Init(), textinput.Blink)
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -90,8 +87,6 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 	m.input, cmd = m.input.Update(msg)
 	cmds = append(cmds, cmd)
-	m.clock, cmd = m.clock.Update(msg)
-	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
@@ -104,9 +99,8 @@ func (m mainModel) View() string {
 			"\n\n" +
 			errorFaintForeground.Render("Check the logs for more details...")
 	}
-	return m.clock.View() + separator +
-		secondaryForeground.Render("project: ") +
-		primaryForegroundBold.Render(m.project) +
+	return secondaryForeground.Render("project: ") +
+		activeForegroundBold.Render(m.project) +
 		separator + m.timer.View() + "\n\n" +
 		m.input.View() + "\n\n" +
 		m.list.View() + "\n"

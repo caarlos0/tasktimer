@@ -25,7 +25,7 @@ func (m projectTimerModel) Update(msg tea.Msg) (projectTimerModel, tea.Cmd) {
 
 func (m projectTimerModel) View() string {
 	return secondaryForeground.Render("total: ") +
-		primaryForegroundBold.Render(sumTasksTimes(m.tasks).Round(time.Second).String())
+		activeForegroundBold.Render(sumTasksTimes(m.tasks).Round(time.Second).String())
 }
 
 // msgs and cmds
