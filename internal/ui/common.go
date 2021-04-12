@@ -1,8 +1,6 @@
 package ui
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
+import "github.com/charmbracelet/lipgloss"
 
 // light palette: https://colorhunt.co/palette/201882
 // dark palette:  https://colorhunt.co/palette/273948
