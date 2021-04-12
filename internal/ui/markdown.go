@@ -24,7 +24,7 @@ func WriteProjectMarkdown(db *badger.DB, project string, w io.Writer) error {
 	_, _ = fmt.Fprintln(w, "# "+project+"\n")
 	_, _ = fmt.Fprintf(
 		w,
-		"❯ Total time **%s**, timed between **%s** and **%s**\n\n",
+		"> Total time **%s**, timed between **%s** and **%s**\n\n",
 		sumTasksTimes(tasks).Round(time.Second).String(),
 		tasks[len(tasks)-1].StartAt.Format("2006-01-02"),
 		tasks[0].EndAt.Format("2006-01-02"),
