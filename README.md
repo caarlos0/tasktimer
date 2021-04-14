@@ -19,7 +19,7 @@ tt
 
 You'll be presented with something like this:
 
-<img width="1279" alt="image" src="https://user-images.githubusercontent.com/245435/104979833-f783f280-59e3-11eb-8c36-d6a086cd63fb.png">
+<img width="1288" alt="image" src="https://user-images.githubusercontent.com/245435/114648989-1679e400-9cb6-11eb-8752-460b0d5eb3fb.png">
 
 You can just type a small description of what you're working on and press
 <kbd>ENTER</kbd> to start timing.
@@ -29,9 +29,9 @@ current timer or type a new task description and press <kbd>ENTER</kbd>
 to stop the previous task and start the new one.
 
 Each task will have its own timer, and the sum of all tasks will be displayed
-in the header (along with a clock and the project name):
+in the header:
 
-<img width="1279" alt="image" src="https://user-images.githubusercontent.com/245435/104979802-e804a980-59e3-11eb-8d79-51ac7b272c31.png">
+<img width="1288" alt="image" src="https://user-images.githubusercontent.com/245435/114649087-3b6e5700-9cb6-11eb-800f-5daaa4baac13.png">
 
 At any time, press <kbd>CTRL</kbd>+<kbd>c</kbd> to stop the current
 timer (if any) and exit.
@@ -51,7 +51,28 @@ tt report
 It will output the given project (via `-p PROJECT`) to `STDOUT`. You can
 then save it to a file, pipe to another software or do whatever you like:
 
-<img width="1495" alt="image" src="https://user-images.githubusercontent.com/245435/105109057-776c9400-5a9a-11eb-9112-6396b32c4b9e.png">
+<img width="1288" alt="image" src="https://user-images.githubusercontent.com/245435/114649175-622c8d80-9cb6-11eb-8de9-063ebf412f7f.png">
+
+## Edit
+
+Let's say you forgot the timer running... you can edit it using the edit command:
+
+```sh
+tt edit
+```
+
+<img width="1288" alt="image" src="https://user-images.githubusercontent.com/245435/114649253-86886a00-9cb6-11eb-8d41-b7895f012f57.png">
+
+The project will be exporter to a JSON file and will open with your `$EDITOR`. 
+Once you close it, it will be imported over the old one.
+
+You can also backup/edit/restore using `tt to-json` and `tt from-json`.
+
+## My terminal is light
+
+Gotcha you covered! TaskTimer automatically handles that thanks to the awesome [lipgloss](https://github.com/charmbracelet/lipgloss):
+
+<img width="1288" alt="image" src="https://user-images.githubusercontent.com/245435/114649473-fac30d80-9cb6-11eb-96d7-44d0d626e9d1.png">
 
 ## Help
 
