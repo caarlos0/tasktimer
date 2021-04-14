@@ -62,13 +62,17 @@ func taskList(tasks []model.Task) string {
 	for _, t := range tasks {
 		z := time.Now()
 		icon := iconOngoing
-		decorate := bold
+		textStyle := primaryForegroundBold
+		clockStyle := activeForegroundBold
 		if !t.EndAt.IsZero() {
 			z = t.EndAt
 			icon = iconDone
-			decorate = faint
+			textStyle = textStyle.Copy().Faint(true).Bold(false)
+			clockStyle = clockStyle.Copy().Faint(true).Bold(false)
 		}
-		s += decorate(fmt.Sprintf("%s #%d %s (%s)", icon, t.ID+1, t.Title, secondaryForeground(z.Sub(t.StartAt).Round(time.Second).String()))) + "\n"
+		s += textStyle.Render(fmt.Sprintf("%s #%d %s ", icon, t.ID+1, t.Title)) +
+			clockStyle.Render(z.Sub(t.StartAt).Round(time.Second).String()) +
+			"\n"
 	}
 	return s
 }
