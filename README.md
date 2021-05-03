@@ -9,6 +9,7 @@
 
 Task Timer (`tt`) is a dead simple TUI task timer
 
+![](/static/undraw_Dev_focus_re_6iwt.svg)
 ## Usage
 
 To get started, just run `tt`:
@@ -63,7 +64,7 @@ tt edit
 
 <img width="1288" alt="image" src="https://user-images.githubusercontent.com/245435/114649253-86886a00-9cb6-11eb-8d41-b7895f012f57.png">
 
-The project will be exporter to a JSON file and will open with your `$EDITOR`. 
+The project will be exporter to a JSON file and will open with your `$EDITOR`.
 Once you close it, it will be imported over the old one.
 
 You can also backup/edit/restore using `tt to-json` and `tt from-json`.
