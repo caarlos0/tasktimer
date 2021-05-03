@@ -33,7 +33,7 @@ func WriteProjectMarkdown(db *badger.DB, project string, w io.Writer) error {
 	for _, task := range tasks {
 		_, _ = fmt.Fprintf(
 			w,
-			"- [x] #%d %s - %s\n",
+			"- **#%d** %s - _%s_\n",
 			task.ID+1,
 			task.Title,
 			task.EndAt.Sub(task.StartAt).Round(time.Second),
