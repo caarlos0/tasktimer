@@ -93,35 +93,6 @@ Depends on the OS, but you can see yours running:
 tt paths
 ```
 
-## Upgrades
-
-### From 1.0.x to 1.1.x
-
-Data was moved from `~/tasktimer` to user data and user logs dir according to
-the OS.
-
-To move, run:
-
-```sh
-tt paths
-```
-
-It will print something like this:
-
-```
-Database path: /Users/carlos/Library/Application Support/tasktimer/default.db
-Log path:      /Users/carlos/Library/Logs/tasktimer/default.log
-```
-
-We only need to migrate the data, so:
-
-```sh
-rm -rf "/Users/carlos/Library/Application Support/tasktimer/"*.db # make sure its empty
-cp -rf ~/tasktimer/*.db "/Users/carlos/Library/Application Support/tasktimer/" # copy data
-rm -rf ~/tasktimer # delete old folder
-
-```
-
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/caarlos0/tasktimer.svg)](https://starchart.cc/caarlos0/tasktimer)
@@ -131,9 +102,12 @@ rm -rf ~/tasktimer # delete old folder
 
 # Badges
 
-[![Release](https://img.shields.io/github/release/caarlos0/tasktimer.svg?style=flat-square)](https://github.com/caarlos0/tasktimer/releases/latest)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build](https://img.shields.io/github/workflow/status/caarlos0/tasktimer/build?style=flat-square)](https://github.com/caarlos0/tasktimer/actions?query=workflow%3Abuild)
-[![Go Report Card](https://goreportcard.com/badge/github.com/caarlos0/tasktimer?style=flat-square)](https://goreportcard.com/report/github.com/caarlos0/tasktimer)
-[![Godoc](https://godoc.org/github.com/caarlos0/tasktimer?status.svg&style=flat-square)](http://godoc.org/github.com/caarlos0/tasktimer)
-[![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=flat-square)](https://github.com/goreleaser)
+[![Release](https://img.shields.io/github/release/caarlos0/tasktimer.svg?style=for-the-badge)](https://github.com/caarlos0/tasktimer/releases/latest)
+
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](LICENSE.md)
+
+[![Build](https://img.shields.io/github/workflow/status/caarlos0/tasktimer/build?style=for-the-badge)](https://github.com/caarlos0/tasktimer/actions?query=workflow%3Abuild)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/caarlos0/tasktimer?style=for-the-badge)](https://goreportcard.com/report/github.com/caarlos0/tasktimer)
+
+[![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=for-the-badge)](https://github.com/goreleaser)
