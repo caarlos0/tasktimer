@@ -1,49 +1,11 @@
 project_name: tt
-before:
-  hooks:
-    - go mod download
-    - ./scripts/completions.sh
-builds:
-- binary: tt
-  goos:
-  - linux
-  - windows
-  - darwin
-  goarch:
-  - amd64
-  - arm64
-archives:
-- name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
-  files:
-    - README.md
-    - LICENSE.md
-    - completions/*
-brews:
-- tap:
-    owner: caarlos0
-    name: homebrew-tap
+variables:
   homepage: https://github.com/caarlos0/tasktimer
-  description: Task Timer (tt) is a dead simple TUI task timer.
-  folder: Formula
-  install: |-
-    bin.install "tt"
-    bash_completion.install "completions/tt.bash" => "tt"
-    zsh_completion.install "completions/tt.zsh" => "_tt"
-    fish_completion.install "completions/tt.fish"
-nfpms:
-- maintainer: Carlos A Becker <pkg@carlosbecker.com>
-  description: Task Timer (tt) is a dead simple TUI task timer.
-  homepage: https://github.com/caarlos0/tasktimer
-  license: MIT
-  contents:
-    - src: ./completions/tt.bash
-      dst: /etc/bash_completion.d/tt
-    - src: ./completions/tt.fish
-      dst: /usr/share/fish/completions/tt.fish
-    - src: ./completions/tt.zsh
-      dst: /usr/local/share/zsh/site-functions/_tt
-  formats:
-  - deb
-  - rpm
-  - apk
-
+  description: Task Timer (tt) is a dead simple TUI task timer
+includes:
+  - from_url:
+      url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/build.yml
+  - from_url:
+      url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/package_with_completions.yml
+  - from_url:
+      url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/release.yml
