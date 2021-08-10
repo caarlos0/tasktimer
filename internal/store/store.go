@@ -61,7 +61,7 @@ func CloseTasks(db *badger.DB) error {
 				if !task.EndAt.IsZero() {
 					return nil
 				}
-				task.EndAt = time.Now()
+				task.EndAt = time.Now().Truncate(time.Second)
 				log.Println("closing", task.Title)
 				return txn.Set(k, task.Bytes())
 			})
@@ -94,7 +94,7 @@ func CreateTask(db *badger.DB, t string) error {
 		return txn.Set([]byte(id), model.Task{
 			ID:      s,
 			Title:   t,
-			StartAt: time.Now(),
+			StartAt: time.Now().Truncate(time.Second),
 		}.Bytes())
 	})
 }
