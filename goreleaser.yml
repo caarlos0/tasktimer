@@ -1,6 +1,7 @@
 project_name: tt
 variables:
   homepage: https://github.com/caarlos0/tasktimer
+  repository: https://github.com/caarlos0/tasktimer
   description: Task Timer (tt) is a dead simple TUI task timer
 includes:
   - from_url:
