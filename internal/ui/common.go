@@ -29,9 +29,5 @@ var (
 	errorFaintForeground  = lipgloss.NewStyle().Foreground(errorColor).Faint(true)
 	errorForegroundPadded = lipgloss.NewStyle().Padding(4).Foreground(errorColor)
 	separator             = secondaryForeground.Render(" • ")
-)
-
-const (
-	iconDone    = "●"
-	iconOngoing = "○"
+	listStyle             = lipgloss.NewStyle().Margin(6, 2, 0, 2)
 )

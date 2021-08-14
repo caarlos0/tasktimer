@@ -3,7 +3,9 @@ package ui
 import (
 	"log"
 	"strings"
+	"time"
 
+	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -24,10 +26,7 @@ func Init(db *badger.DB, project string) tea.Model {
 	l.KeyMap.Quit.SetEnabled(false)
 
 	return mainModel{
-		list: taskListModel{
-			db:   db,
-			list: l,
-		},
+		list:    l,
 		timer:   projectTimerModel{},
 		db:      db,
 		input:   input,
@@ -37,7 +36,7 @@ func Init(db *badger.DB, project string) tea.Model {
 
 type mainModel struct {
 	input   textinput.Model
-	list    taskListModel
+	list    list.Model
 	timer   projectTimerModel
 	db      *badger.DB
 	project string
@@ -45,25 +44,22 @@ type mainModel struct {
 }
 
 func (m mainModel) Init() tea.Cmd {
-	return tea.Batch(m.list.Init(), textinput.Blink)
+	return tea.Batch(updateTaskListCmd(m.db), textinput.Blink)
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
-	switch msg2 := msg.(type) {
+	switch msg := msg.(type) {
 	case errMsg:
-		m.err = msg2.error
+		m.err = msg.error
 	case tea.KeyMsg:
-		switch msg2.String() {
+		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Sequentially(closeTasks(m.db), tea.Quit)
 		case "esc":
-			if m.list.list.SettingFilter() {
-				m.list.list, cmd = m.list.list.Update(msg)
-				cmds = append(cmds, cmd)
-			} else {
+			if !m.list.SettingFilter() {
 				if m.input.Focused() {
 					m.input.Blur()
 				}
@@ -71,15 +67,15 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, tea.Sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
 			}
 		case "enter":
-			if m.list.list.SettingFilter() {
-				m.list.list, cmd = m.list.list.Update(msg)
-				cmds = append(cmds, cmd)
-			} else {
+			if !m.list.SettingFilter() {
 				if !m.input.Focused() {
 					m.input.Focus()
 				} else {
 					log.Println("start/stop timer")
-					cmds = append(cmds, tea.Sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
+					cmds = append(cmds, tea.Sequentially(
+						closeTasks(m.db),
+						createTask(m.db, strings.TrimSpace(m.input.Value())),
+					))
 					m.input.SetValue("")
 				}
 			}
@@ -88,23 +84,28 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// only send key presses to input if it is focused
 				m.input, cmd = m.input.Update(msg)
 				cmds = append(cmds, cmd)
-				msg = nil
-			} else {
-				m.list.list, cmd = m.list.list.Update(msg)
-				cmds = append(cmds, cmd)
 			}
 		}
-	default:
-		// if its not a keypress, we gotta update the list
-		m.list, cmd = m.list.Update(msg)
-		cmds = append(cmds, cmd)
-		m.list.list, cmd = m.list.list.Update(msg)
-		cmds = append(cmds, cmd)
+	case tea.WindowSizeMsg:
+		top, right, bottom, left := listStyle.GetMargin()
+		m.list.SetSize(msg.Width-left-right, msg.Height-top-bottom)
+	case updateTaskListMsg:
+		cmds = append(cmds, updateTaskListCmd(m.db))
+	case taskListUpdatedMsg:
+		var items = make([]list.Item, 0, len(msg.tasks))
+		for _, t := range msg.tasks {
+			items = append(items, item{
+				title: t.Title,
+				start: t.StartAt,
+				end:   t.EndAt,
+			})
+		}
+		m.list.SetItems(items)
 	}
 
 	m.timer, cmd = m.timer.Update(msg)
 	cmds = append(cmds, cmd)
-	m.input, cmd = m.input.Update(msg)
+	m.list, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
@@ -124,6 +125,18 @@ func (m mainModel) View() string {
 		m.input.View() + "\n\n" +
 		m.list.View() + "\n"
 }
+
+// msgs
+
+type updateTaskListMsg struct{}
+
+type taskListUpdatedMsg struct {
+	tasks []model.Task
+}
+
+type errMsg struct{ error }
+
+func (e errMsg) Error() string { return e.error.Error() }
 
 // cmds
 
@@ -145,3 +158,31 @@ func createTask(db *badger.DB, t string) tea.Cmd {
 		return updateTaskListMsg{}
 	}
 }
+
+func updateTaskListCmd(db *badger.DB) tea.Cmd {
+	return func() tea.Msg {
+		log.Println("updating input list")
+		tasks, err := store.GetTaskList(db)
+		if err != nil {
+			return errMsg{err}
+		}
+		return taskListUpdatedMsg{tasks}
+	}
+}
+
+// models
+
+type item struct {
+	title      string
+	start, end time.Time
+}
+
+func (i item) Title() string { return i.title }
+func (i item) Description() string {
+	end := time.Now()
+	if !i.end.IsZero() {
+		end = i.end
+	}
+	return end.Sub(i.start).Round(time.Second).String()
+}
+func (i item) FilterValue() string { return i.title }
