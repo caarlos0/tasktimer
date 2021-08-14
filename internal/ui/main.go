@@ -50,47 +50,16 @@ func (m mainModel) Init() tea.Cmd {
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
+	var newMsg tea.Msg
 
 	switch msg := msg.(type) {
 	case errMsg:
 		m.err = msg.error
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
-			return m, tea.Sequentially(closeTasks(m.db), tea.Quit)
-		case "esc":
-			if !m.list.SettingFilter() {
-				if m.input.Focused() {
-					m.input.Blur()
-				}
-				log.Println("stop timer")
-				cmds = append(cmds, tea.Sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
-			}
-		case "enter":
-			if !m.list.SettingFilter() {
-				if !m.input.Focused() {
-					m.input.Focus()
-				} else {
-					log.Println("start/stop timer")
-					cmds = append(cmds, tea.Sequentially(
-						closeTasks(m.db),
-						createTask(m.db, strings.TrimSpace(m.input.Value())),
-					))
-					m.input.SetValue("")
-				}
-			}
-		default:
-			if m.input.Focused() {
-				// only send key presses to input if it is focused
-				m.input, cmd = m.input.Update(msg)
-				cmds = append(cmds, cmd)
-			}
-		}
 	case tea.WindowSizeMsg:
 		top, right, bottom, left := listStyle.GetMargin()
 		m.list.SetSize(msg.Width-left-right, msg.Height-top-bottom)
 	case updateTaskListMsg:
-		cmds = append(cmds, updateTaskListCmd(m.db))
+		cmds = append(cmds, m.list.StartSpinner(), updateTaskListCmd(m.db))
 	case taskListUpdatedMsg:
 		var items = make([]list.Item, 0, len(msg.tasks))
 		for _, t := range msg.tasks {
@@ -100,9 +69,57 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				end:   t.EndAt,
 			})
 		}
+
+		m.list.StopSpinner()
 		m.list.SetItems(items)
+		cmds = append(cmds, updateProjectTimerCmd(msg.tasks))
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c":
+			return m, tea.Sequentially(closeTasksCmd(m.db), tea.Quit)
+		case "esc":
+			if !m.list.SettingFilter() {
+				if m.input.Focused() {
+					m.input.Blur()
+				}
+				log.Println("stop timer")
+				cmds = append(cmds, tea.Sequentially(
+					closeTasksCmd(m.db),
+					updateTaskListCmd(m.db)),
+				)
+				newMsg = doNotPropagateMsg{}
+			}
+		case "enter":
+			if !m.list.SettingFilter() {
+				if !m.input.Focused() {
+					m.input.Focus()
+					cmds = append(cmds, textinput.Blink)
+				} else {
+					log.Println("start/stop timer")
+					cmds = append(cmds, tea.Sequentially(
+						closeTasksCmd(m.db),
+						createTaskCmd(m.db, strings.TrimSpace(m.input.Value())),
+					))
+					m.input.SetValue("")
+				}
+			}
+		default:
+			if m.input.Focused() {
+				// only send key presses to input if it is focused
+				m.input, cmd = m.input.Update(msg)
+				cmds = append(cmds, cmd)
+				newMsg = doNotPropagateMsg{}
+			}
+		}
 	}
 
+	if newMsg != nil {
+		// override original msg
+		msg = newMsg
+	}
+
+	m.input, cmd = m.input.Update(msg)
+	cmds = append(cmds, cmd)
 	m.timer, cmd = m.timer.Update(msg)
 	cmds = append(cmds, cmd)
 	m.list, cmd = m.list.Update(msg)
@@ -128,6 +145,8 @@ func (m mainModel) View() string {
 
 // msgs
 
+type doNotPropagateMsg struct{}
+
 type updateTaskListMsg struct{}
 
 type taskListUpdatedMsg struct {
@@ -140,7 +159,7 @@ func (e errMsg) Error() string { return e.error.Error() }
 
 // cmds
 
-func closeTasks(db *badger.DB) tea.Cmd {
+func closeTasksCmd(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {
 		log.Println("closing tasks")
 		if err := store.CloseTasks(db); err != nil {
@@ -150,7 +169,7 @@ func closeTasks(db *badger.DB) tea.Cmd {
 	}
 }
 
-func createTask(db *badger.DB, t string) tea.Cmd {
+func createTaskCmd(db *badger.DB, t string) tea.Cmd {
 	return func() tea.Msg {
 		if err := store.CreateTask(db, t); err != nil {
 			return errMsg{err}
@@ -177,7 +196,13 @@ type item struct {
 	start, end time.Time
 }
 
-func (i item) Title() string { return i.title }
+func (i item) Title() string {
+	if i.end.IsZero() {
+		return boldStyle.Render(i.title)
+	}
+	return i.title
+}
+
 func (i item) Description() string {
 	end := time.Now()
 	if !i.end.IsZero() {
@@ -185,4 +210,5 @@ func (i item) Description() string {
 	}
 	return end.Sub(i.start).Round(time.Second).String()
 }
+
 func (i item) FilterValue() string { return i.title }
