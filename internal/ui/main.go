@@ -142,9 +142,9 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		msg = newMsg
 	}
 
-	m.input, cmd = m.input.Update(msg)
-	cmds = append(cmds, cmd)
 	m.timer, cmd = m.timer.Update(msg)
+	cmds = append(cmds, cmd)
+	m.input, cmd = m.input.Update(msg)
 	cmds = append(cmds, cmd)
 	m.list, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
