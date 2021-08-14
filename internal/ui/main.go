@@ -26,8 +26,7 @@ func Init(db *badger.DB, project string) tea.Model {
 	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "Task List"
 	l.SetSpinner(spinner.MiniDot)
-	l.KeyMap.Quit.SetEnabled(false)
-	l.StartSpinner()
+	l.DisableQuitKeybindings()
 
 	return mainModel{
 		list:    l,
@@ -106,8 +105,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						closeTasksCmd(m.db),
 						updateTaskListCmd(m.db)),
 					)
-					newMsg = doNotPropagateMsg{}
 				}
+				newMsg = doNotPropagateMsg{}
 			}
 		case "enter":
 			log.Println("tea.KeyMsg -> enter")
