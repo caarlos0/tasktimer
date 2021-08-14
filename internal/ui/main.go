@@ -9,6 +9,7 @@ import (
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/dgraph-io/badger/v3"
@@ -24,7 +25,9 @@ func Init(db *badger.DB, project string) tea.Model {
 
 	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "Task List"
+	l.SetSpinner(spinner.MiniDot)
 	l.KeyMap.Quit.SetEnabled(false)
+	l.StartSpinner()
 
 	return mainModel{
 		list:    l,
@@ -47,7 +50,7 @@ type mainModel struct {
 func (m mainModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.list.StartSpinner(),
-		updateTaskListCmd(m.db),
+		askForTaskListUpdateCmd(),
 		textinput.Blink,
 	)
 }
@@ -59,13 +62,17 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case errMsg:
+		log.Println("errMsg")
 		m.err = msg.error
 	case tea.WindowSizeMsg:
+		log.Println("tea.WindowSizeMsg")
 		top, right, bottom, left := listStyle.GetMargin()
 		m.list.SetSize(msg.Width-left-right, msg.Height-top-bottom)
 	case updateTaskListMsg:
+		log.Println("updateTaskListMsg")
 		cmds = append(cmds, m.list.StartSpinner(), updateTaskListCmd(m.db))
 	case taskListUpdatedMsg:
+		log.Println("taskListUpdatedMsg")
 		var items = make([]list.Item, 0, len(msg.tasks))
 		for _, t := range msg.tasks {
 			items = append(items, item{
@@ -77,30 +84,41 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.list.StopSpinner()
 		m.list.SetItems(items)
-		cmds = append(cmds, m.list.ResetSelected(), m.list.ResetFilter(), updateProjectTimerCmd(msg.tasks))
+		cmds = append(
+			cmds,
+			m.list.ResetSelected(),
+			m.list.ResetFilter(),
+			updateProjectTimerCmd(msg.tasks),
+		)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
+			log.Println("tea.KeyMsg -> ctrl+c")
 			return m, tea.Sequentially(closeTasksCmd(m.db), tea.Quit)
 		case "esc":
+			log.Println("tea.KeyMsg -> esc")
 			if !m.list.SettingFilter() {
+				log.Println("tea.KeyMsg -> esc -> !SettingFilter")
 				if m.input.Focused() {
+					log.Println("tea.KeyMsg -> esc -> !SettingFilter -> input.Focused")
 					m.input.Blur()
+					cmds = append(cmds, tea.Sequentially(
+						closeTasksCmd(m.db),
+						updateTaskListCmd(m.db)),
+					)
+					newMsg = doNotPropagateMsg{}
 				}
-				log.Println("stop timer")
-				cmds = append(cmds, tea.Sequentially(
-					closeTasksCmd(m.db),
-					updateTaskListCmd(m.db)),
-				)
-				newMsg = doNotPropagateMsg{}
 			}
 		case "enter":
+			log.Println("tea.KeyMsg -> enter")
 			if !m.list.SettingFilter() {
+				log.Println("tea.KeyMsg -> enter -> !SettingFilter")
 				if !m.input.Focused() {
+					log.Println("tea.KeyMsg -> enter -> !SettingFilter -> input.Focused")
 					m.input.Focus()
 					cmds = append(cmds, textinput.Blink)
 				} else {
-					log.Println("start/stop timer")
+					log.Println("tea.KeyMsg -> enter -> !SettingFilter -> !input.Focused")
 					cmds = append(cmds, tea.Sequentially(
 						closeTasksCmd(m.db),
 						createTaskCmd(m.db, strings.TrimSpace(m.input.Value())),
@@ -109,7 +127,9 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		default:
+			log.Println("tea.KeyMsg -> default")
 			if m.input.Focused() {
+				log.Println("tea.KeyMsg -> default -> input.Focused")
 				// only send key presses to input if it is focused
 				m.input, cmd = m.input.Update(msg)
 				cmds = append(cmds, cmd)
@@ -119,7 +139,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if newMsg != nil {
-		// override original msg
+		log.Println("tea.KeyMsg -> override original msg")
 		msg = newMsg
 	}
 
@@ -166,7 +186,7 @@ func (e errMsg) Error() string { return e.error.Error() }
 
 func closeTasksCmd(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {
-		log.Println("closing tasks")
+		log.Println("closeTasksCmd")
 		if err := store.CloseTasks(db); err != nil {
 			return errMsg{err}
 		}
@@ -176,6 +196,7 @@ func closeTasksCmd(db *badger.DB) tea.Cmd {
 
 func createTaskCmd(db *badger.DB, t string) tea.Cmd {
 	return func() tea.Msg {
+		log.Println("createTaskCmd")
 		if err := store.CreateTask(db, t); err != nil {
 			return errMsg{err}
 		}
@@ -183,9 +204,17 @@ func createTaskCmd(db *badger.DB, t string) tea.Cmd {
 	}
 }
 
+func askForTaskListUpdateCmd() tea.Cmd {
+	return func() tea.Msg {
+		log.Println("askForTaskListUpdateCmd")
+		return updateTaskListMsg{}
+	}
+}
+
 func updateTaskListCmd(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {
-		log.Println("updating input list")
+		log.Println("updateTaskListCmd")
+		time.Sleep(time.Second)
 		tasks, err := store.GetTaskList(db)
 		if err != nil {
 			return errMsg{err}
