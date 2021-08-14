@@ -112,17 +112,17 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			log.Println("tea.KeyMsg -> enter")
 			if !m.list.SettingFilter() {
 				log.Println("tea.KeyMsg -> enter -> !SettingFilter")
-				if !m.input.Focused() {
+				if m.input.Focused() {
 					log.Println("tea.KeyMsg -> enter -> !SettingFilter -> input.Focused")
-					m.input.Focus()
-					cmds = append(cmds, textinput.Blink)
-				} else {
-					log.Println("tea.KeyMsg -> enter -> !SettingFilter -> !input.Focused")
 					cmds = append(cmds, tea.Sequentially(
 						closeTasksCmd(m.db),
 						createTaskCmd(m.db, strings.TrimSpace(m.input.Value())),
 					))
 					m.input.SetValue("")
+				} else {
+					log.Println("tea.KeyMsg -> enter -> !SettingFilter -> !input.Focused")
+					m.input.Focus()
+					cmds = append(cmds, textinput.Blink)
 				}
 			}
 		default:
