@@ -49,7 +49,7 @@ type mainModel struct {
 func (m mainModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.list.StartSpinner(),
-		askForTaskListUpdateCmd(),
+		enqueueTaskListUpdate(),
 		textinput.Blink,
 	)
 }
@@ -203,9 +203,9 @@ func createTaskCmd(db *badger.DB, t string) tea.Cmd {
 	}
 }
 
-func askForTaskListUpdateCmd() tea.Cmd {
+func enqueueTaskListUpdate() tea.Cmd {
 	return func() tea.Msg {
-		log.Println("askForTaskListUpdateCmd")
+		log.Println("enqueueTaskListUpdate")
 		return updateTaskListMsg{}
 	}
 }
