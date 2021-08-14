@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/caarlos0/tasktimer/internal/store"
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/dgraph-io/badger/v3"
@@ -18,9 +19,14 @@ func Init(db *badger.DB, project string) tea.Model {
 	input.CharLimit = 250
 	input.Width = 50
 
+	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	l.Title = "Task List"
+	l.KeyMap.Quit.SetEnabled(false)
+
 	return mainModel{
 		list: taskListModel{
-			db: db,
+			db:   db,
+			list: l,
 		},
 		timer:   projectTimerModel{},
 		db:      db,
@@ -54,16 +60,28 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Sequentially(closeTasks(m.db), tea.Quit)
 		case "esc":
-			log.Println("stop timer")
-			cmds = append(cmds, tea.Sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
-			m.input.Blur()
-		case "enter":
-			if !m.input.Focused() {
-				m.input.Focus()
+			if m.list.list.SettingFilter() {
+				m.list.list, cmd = m.list.list.Update(msg)
+				cmds = append(cmds, cmd)
 			} else {
-				log.Println("start/stop timer")
-				cmds = append(cmds, tea.Sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
-				m.input.SetValue("")
+				if m.input.Focused() {
+					m.input.Blur()
+				}
+				log.Println("stop timer")
+				cmds = append(cmds, tea.Sequentially(closeTasks(m.db), updateTaskListCmd(m.db)))
+			}
+		case "enter":
+			if m.list.list.SettingFilter() {
+				m.list.list, cmd = m.list.list.Update(msg)
+				cmds = append(cmds, cmd)
+			} else {
+				if !m.input.Focused() {
+					m.input.Focus()
+				} else {
+					log.Println("start/stop timer")
+					cmds = append(cmds, tea.Sequentially(closeTasks(m.db), createTask(m.db, strings.TrimSpace(m.input.Value()))))
+					m.input.SetValue("")
+				}
 			}
 		default:
 			if m.input.Focused() {
@@ -72,14 +90,15 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, cmd)
 				msg = nil
 			} else {
-				// only send key presses to list if input is not focused
-				m.list, cmd = m.list.Update(msg)
+				m.list.list, cmd = m.list.list.Update(msg)
 				cmds = append(cmds, cmd)
 			}
 		}
 	default:
 		// if its not a keypress, we gotta update the list
 		m.list, cmd = m.list.Update(msg)
+		cmds = append(cmds, cmd)
+		m.list.list, cmd = m.list.list.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 

@@ -1,80 +1,56 @@
 package ui
 
 import (
-	"fmt"
 	"log"
 	"time"
 
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
-	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/dgraph-io/badger/v3"
 )
 
 type taskListModel struct {
-	db       *badger.DB
-	viewport viewport.Model
-	ready    bool
-	tasks    []model.Task
+	db   *badger.DB
+	list list.Model
 }
 
 func (m taskListModel) Init() tea.Cmd {
 	return updateTaskListCmd(m.db)
 }
 
+var docStyle = lipgloss.NewStyle().Margin(6, 2, 0, 2)
+
 func (m taskListModel) Update(msg tea.Msg) (taskListModel, tea.Cmd) {
-	const offset = 7
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		if !m.ready {
-			m.viewport = viewport.Model{
-				Width:  msg.Width,
-				Height: msg.Height - offset,
-			}
-			m.ready = true
-		} else {
-			m.viewport.Width = msg.Width
-			m.viewport.Height = msg.Height - offset
-		}
+		top, right, bottom, left := docStyle.GetMargin()
+		m.list.SetSize(msg.Width-left-right, msg.Height-top-bottom)
 	case updateTaskListMsg:
 		cmds = append(cmds, updateTaskListCmd(m.db))
-		m.viewport.GotoTop()
 	case taskListUpdatedMsg:
-		m.tasks = msg.tasks
-		cmds = append(cmds, updateProjectTimerCmd(m.tasks))
+		var items []list.Item
+		for _, t := range msg.tasks {
+			items = append(items, item{
+				title: t.Title,
+				start: t.StartAt,
+				end:   t.EndAt,
+			})
+		}
+		m.list.SetItems(items)
+		var cmd tea.Cmd
+		m.list, cmd = m.list.Update(msg)
+		cmds = append(cmds, updateProjectTimerCmd(msg.tasks), cmd)
 	}
 
-	var cmd tea.Cmd
-	m.viewport.SetContent(taskList(m.tasks))
-	m.viewport, cmd = m.viewport.Update(msg)
-	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
 func (m taskListModel) View() string {
-	return m.viewport.View()
-}
-
-func taskList(tasks []model.Task) string {
-	var s string
-	for _, t := range tasks {
-		z := time.Now()
-		icon := iconOngoing
-		textStyle := primaryForegroundBold
-		clockStyle := activeForegroundBold
-		if !t.EndAt.IsZero() {
-			z = t.EndAt
-			icon = iconDone
-			textStyle = textStyle.Copy().Faint(true).Bold(false)
-			clockStyle = clockStyle.Copy().Faint(true).Bold(false)
-		}
-		s += textStyle.Render(fmt.Sprintf("%s #%d %s ", icon, t.ID+1, t.Title)) +
-			clockStyle.Render(z.Sub(t.StartAt).Round(time.Second).String()) +
-			"\n"
-	}
-	return s
+	return m.list.View()
 }
 
 // msgs
@@ -101,3 +77,20 @@ func updateTaskListCmd(db *badger.DB) tea.Cmd {
 		return taskListUpdatedMsg{tasks}
 	}
 }
+
+// model
+
+type item struct {
+	title      string
+	start, end time.Time
+}
+
+func (i item) Title() string { return i.title }
+func (i item) Description() string {
+	end := time.Now()
+	if !i.end.IsZero() {
+		end = i.end
+	}
+	return end.Sub(i.start).Round(time.Second).String()
+}
+func (i item) FilterValue() string { return i.title }

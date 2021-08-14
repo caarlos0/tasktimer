@@ -12,3 +12,5 @@ require (
 	github.com/muesli/go-app-paths v0.2.1
 	github.com/spf13/cobra v1.2.1
 )
+
+replace github.com/charmbracelet/bubbles => ../../charm/bubbles-internal
