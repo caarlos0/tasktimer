@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -44,7 +45,11 @@ type mainModel struct {
 }
 
 func (m mainModel) Init() tea.Cmd {
-	return tea.Batch(updateTaskListCmd(m.db), textinput.Blink)
+	return tea.Batch(
+		m.list.StartSpinner(),
+		updateTaskListCmd(m.db),
+		textinput.Blink,
+	)
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -208,7 +213,18 @@ func (i item) Description() string {
 	if !i.end.IsZero() {
 		end = i.end
 	}
-	return end.Sub(i.start).Round(time.Second).String()
+	return relativeDays(i.start) + " - " + end.Sub(i.start).Round(time.Second).String()
 }
 
 func (i item) FilterValue() string { return i.title }
+
+func relativeDays(t time.Time) string {
+	days := time.Since(t).Round(time.Hour*24).Hours() / 24
+	if days == 0 {
+		return "today"
+	}
+	if days == 1 {
+		return "yesterday"
+	}
+	return fmt.Sprintf("%.0f days ago", days)
+}
