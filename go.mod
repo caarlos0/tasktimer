@@ -3,6 +3,7 @@ module github.com/caarlos0/tasktimer
 go 1.16
 
 require (
+	github.com/caarlos0/timea.go v1.0.2
 	github.com/charmbracelet/bubbles v0.8.0
 	github.com/charmbracelet/bubbletea v0.14.1
 	github.com/charmbracelet/glamour v0.3.0

@@ -1,13 +1,13 @@
 package ui
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"time"
 
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
+	timeago "github.com/caarlos0/timea.go"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -241,18 +241,10 @@ func (i item) Description() string {
 	if !i.end.IsZero() {
 		end = i.end
 	}
-	return relativeDays(i.start) + " - " + end.Sub(i.start).Round(time.Second).String()
+	ago := timeago.Of(i.start, timeago.Options{
+		Precision: timeago.MinutePrecision,
+	})
+	return ago + " - " + end.Sub(i.start).Round(time.Second).String()
 }
 
 func (i item) FilterValue() string { return i.title }
-
-func relativeDays(t time.Time) string {
-	days := time.Since(t).Round(time.Hour*24).Hours() / 24
-	if days == 0 {
-		return "today"
-	}
-	if days == 1 {
-		return "yesterday"
-	}
-	return fmt.Sprintf("%.0f days ago", days)
-}
