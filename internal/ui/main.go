@@ -82,13 +82,9 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.list.StopSpinner()
-		m.list.SetItems(items)
-		cmds = append(
-			cmds,
-			m.list.ResetSelected(),
-			m.list.ResetFilter(),
-			updateProjectTimerCmd(msg.tasks),
-		)
+		m.list.ResetSelected()
+		m.list.ResetFilter()
+		cmds = append(cmds, m.list.SetItems(items), updateProjectTimerCmd(msg.tasks))
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
