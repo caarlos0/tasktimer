@@ -8,11 +8,27 @@ import (
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
 	timeago "github.com/caarlos0/timea.go"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/dgraph-io/badger/v3"
+)
+
+var (
+	keyEsc = key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "stop timer"),
+	)
+	keyEnter = key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "start timer"),
+	)
+	keyCtrlC = key.NewBinding(
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "exit"),
+	)
 )
 
 func Init(db *badger.DB, project string) tea.Model {
@@ -24,9 +40,12 @@ func Init(db *badger.DB, project string) tea.Model {
 	input.Width = 50
 
 	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "Task List"
+	l.Title = "Task Timer"
 	l.SetSpinner(spinner.MiniDot)
 	l.DisableQuitKeybindings()
+	l.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{keyEsc, keyEnter, keyCtrlC}
+	}
 
 	return mainModel{
 		list:    l,
@@ -49,7 +68,7 @@ type mainModel struct {
 func (m mainModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.list.StartSpinner(),
-		enqueueTaskListUpdate(),
+		enqueueTaskListUpdate,
 		textinput.Blink,
 	)
 }
@@ -72,7 +91,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.list.StartSpinner(), updateTaskListCmd(m.db))
 	case taskListUpdatedMsg:
 		log.Println("taskListUpdatedMsg")
-		var items = make([]list.Item, 0, len(msg.tasks))
+		items := make([]list.Item, 0, len(msg.tasks))
 		for _, t := range msg.tasks {
 			items = append(items, item{
 				title: t.Title,
@@ -86,50 +105,42 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.ResetFilter()
 		cmds = append(cmds, m.list.SetItems(items), updateProjectTimerCmd(msg.tasks))
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
+		if key.Matches(msg, keyCtrlC) {
 			log.Println("tea.KeyMsg -> ctrl+c")
 			return m, tea.Sequentially(closeTasksCmd(m.db), tea.Quit)
-		case "esc":
-			log.Println("tea.KeyMsg -> esc")
-			if !m.list.SettingFilter() {
-				log.Println("tea.KeyMsg -> esc -> !SettingFilter")
-				if m.input.Focused() {
-					log.Println("tea.KeyMsg -> esc -> !SettingFilter -> input.Focused")
-					m.input.Blur()
-					cmds = append(cmds, tea.Sequentially(
-						closeTasksCmd(m.db),
-						updateTaskListCmd(m.db)),
-					)
-				}
-				newMsg = doNotPropagateMsg{}
-			}
-		case "enter":
-			log.Println("tea.KeyMsg -> enter")
-			if !m.list.SettingFilter() {
-				log.Println("tea.KeyMsg -> enter -> !SettingFilter")
-				if m.input.Focused() {
-					log.Println("tea.KeyMsg -> enter -> !SettingFilter -> input.Focused")
-					cmds = append(cmds, tea.Sequentially(
-						closeTasksCmd(m.db),
-						createTaskCmd(m.db, strings.TrimSpace(m.input.Value())),
-					))
-					m.input.SetValue("")
-				} else {
-					log.Println("tea.KeyMsg -> enter -> !SettingFilter -> !input.Focused")
-					m.input.Focus()
-					cmds = append(cmds, textinput.Blink)
-				}
-			}
-		default:
-			log.Println("tea.KeyMsg -> default")
+		}
+
+		if key.Matches(msg, keyEsc) && !m.list.SettingFilter() {
+			log.Println("tea.KeyMsg -> esc ->")
 			if m.input.Focused() {
-				log.Println("tea.KeyMsg -> default -> input.Focused")
-				// only send key presses to input if it is focused
-				m.input, cmd = m.input.Update(msg)
-				cmds = append(cmds, cmd)
-				newMsg = doNotPropagateMsg{}
+				log.Println("tea.KeyMsg -> esc -> -> input.Focused")
+				m.input.Blur()
+				cmds = append(cmds, tea.Sequentially(
+					closeTasksCmd(m.db),
+					updateTaskListCmd(m.db)),
+				)
 			}
+			newMsg = doNotPropagateMsg{}
+		} else if key.Matches(msg, keyEnter) && !m.list.SettingFilter() {
+			log.Println("tea.KeyMsg -> enter")
+			if m.input.Focused() {
+				log.Println("tea.KeyMsg -> enter -> input.Focused")
+				cmds = append(cmds, tea.Sequentially(
+					closeTasksCmd(m.db),
+					createTaskCmd(m.db, strings.TrimSpace(m.input.Value())),
+				))
+				m.input.SetValue("")
+			} else {
+				log.Println("tea.KeyMsg -> enter -> !input.Focused")
+				m.input.Focus()
+				cmds = append(cmds, textinput.Blink)
+			}
+		} else if m.input.Focused() {
+			log.Println("tea.KeyMsg -> default -> input.Focused")
+			// only send key presses to input if it is focused
+			m.input, cmd = m.input.Update(msg)
+			cmds = append(cmds, cmd)
+			newMsg = doNotPropagateMsg{}
 		}
 	}
 
@@ -199,17 +210,13 @@ func createTaskCmd(db *badger.DB, t string) tea.Cmd {
 	}
 }
 
-func enqueueTaskListUpdate() tea.Cmd {
-	return func() tea.Msg {
-		log.Println("enqueueTaskListUpdate")
-		return updateTaskListMsg{}
-	}
+func enqueueTaskListUpdate() tea.Msg {
+	return updateTaskListMsg{}
 }
 
 func updateTaskListCmd(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {
 		log.Println("updateTaskListCmd")
-		time.Sleep(time.Second)
 		tasks, err := store.GetTaskList(db)
 		if err != nil {
 			return errMsg{err}
