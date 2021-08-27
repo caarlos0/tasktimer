@@ -40,8 +40,8 @@ func Init(db *badger.DB, project string) tea.Model {
 	input.Width = 50
 
 	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "Task Timer"
-	l.SetSpinner(spinner.MiniDot)
+	l.Title = "tasks"
+	l.SetSpinner(spinner.Pulse)
 	l.DisableQuitKeybindings()
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{keyEsc, keyEnter, keyCtrlC}
@@ -110,7 +110,11 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Sequentially(closeTasksCmd(m.db), tea.Quit)
 		}
 
-		if key.Matches(msg, keyEsc) && !m.list.SettingFilter() {
+		if m.list.SettingFilter() {
+			break
+		}
+
+		if key.Matches(msg, keyEsc) {
 			log.Println("tea.KeyMsg -> esc ->")
 			if m.input.Focused() {
 				log.Println("tea.KeyMsg -> esc -> -> input.Focused")
@@ -121,7 +125,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				)
 			}
 			newMsg = doNotPropagateMsg{}
-		} else if key.Matches(msg, keyEnter) && !m.list.SettingFilter() {
+		} else if key.Matches(msg, keyEnter) {
 			log.Println("tea.KeyMsg -> enter")
 			if m.input.Focused() {
 				log.Println("tea.KeyMsg -> enter -> input.Focused")
