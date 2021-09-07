@@ -133,35 +133,39 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			break
 		}
 
-		if key.Matches(msg, m.keymap.Esc) {
-			if m.input.Focused() {
-				log.Println("tea.KeyMsg -> esc -> input.Focused")
+		if m.input.Focused() {
+			if key.Matches(msg, m.keymap.Esc) {
+				log.Println("tea.KeyMsg -> input.Focused -> esc")
 				m.input.Blur()
 				cmds = append(cmds, tea.Sequentially(
 					closeTasksCmd(m.db),
 					updateTaskListCmd(m.db)),
 				)
 			}
-			newMsg = doNotPropagateMsg{}
-		} else if key.Matches(msg, m.keymap.Enter) {
-			if m.input.Focused() {
-				log.Println("tea.KeyMsg -> enter -> input.Focused")
+			if key.Matches(msg, m.keymap.Enter) {
+				log.Println("tea.KeyMsg -> input.Focused -> enter")
 				cmds = append(cmds, tea.Sequentially(
 					closeTasksCmd(m.db),
 					createTaskCmd(m.db, strings.TrimSpace(m.input.Value())),
 				))
 				m.input.SetValue("")
-			} else {
-				log.Println("tea.KeyMsg -> enter -> !input.Focused")
-				m.input.Focus()
-				cmds = append(cmds, textinput.Blink)
 			}
-		} else if m.input.Focused() {
-			log.Println("tea.KeyMsg -> default -> input.Focused")
-			// only send key presses to input if it is focused
+
+			// delegate keypresses to input
+			log.Println("tea.KeyMsg -> input.Focused")
 			m.input, cmd = m.input.Update(msg)
 			cmds = append(cmds, cmd)
 			newMsg = doNotPropagateMsg{}
+		} else {
+			if key.Matches(msg, m.keymap.Esc) {
+				log.Println("tea.KeyMsg -> !input.Focused -> esc")
+				newMsg = doNotPropagateMsg{}
+			}
+			if key.Matches(msg, m.keymap.Enter) {
+				log.Println("tea.KeyMsg -> !input.Focused -> enter")
+				m.input.Focus()
+				cmds = append(cmds, textinput.Blink)
+			}
 		}
 	}
 
