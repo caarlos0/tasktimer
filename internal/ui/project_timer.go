@@ -28,7 +28,7 @@ func (m projectTimerModel) View() string {
 		activeForegroundBold.Render(sumTasksTimes(m.tasks, time.Time{}).Round(time.Second).String()) +
 		separator +
 		secondaryForeground.Render("today: ") +
-		activeForegroundBold.Render(sumTasksTimes(m.tasks, time.Now().Truncate(time.Hour*24)).Round(time.Second).String())
+		activeForegroundBold.Render(sumTasksTimes(m.tasks, todayAtMidnight()).Round(time.Second).String())
 }
 
 // msgs and cmds
@@ -45,16 +45,20 @@ func updateProjectTimerCmd(tasks []model.Task) tea.Cmd {
 
 func sumTasksTimes(tasks []model.Task, since time.Time) time.Duration {
 	d := time.Duration(0)
-	loc := time.Now().Location()
 	for _, t := range tasks {
-		if t.StartAt.In(loc).Before(since) {
+		if t.StartAt.Before(since) {
 			continue
 		}
-		z := t.EndAt.In(loc)
+
+		z := t.EndAt
 		if z.IsZero() {
 			z = time.Now()
 		}
-		d += z.Sub(t.StartAt.In(loc))
+		d += z.Sub(t.StartAt)
 	}
 	return d
+}
+
+func todayAtMidnight() time.Time {
+	return time.Now().Truncate(time.Hour * 24)
 }
