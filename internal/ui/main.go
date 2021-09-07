@@ -16,20 +16,11 @@ import (
 	"github.com/dgraph-io/badger/v3"
 )
 
-var (
-	keyEsc = key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "stop timer"),
-	)
-	keyEnter = key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "start timer"),
-	)
-	keyCtrlC = key.NewBinding(
-		key.WithKeys("ctrl+c"),
-		key.WithHelp("ctrl+c", "exit"),
-	)
-)
+type keymap struct {
+	Esc   key.Binding
+	Enter key.Binding
+	CtrlC key.Binding
+}
 
 func Init(db *badger.DB, project string) tea.Model {
 	input := textinput.NewModel()
@@ -39,12 +30,31 @@ func Init(db *badger.DB, project string) tea.Model {
 	input.CharLimit = 250
 	input.Width = 50
 
+	keymap := &keymap{
+		Esc: key.NewBinding(
+			key.WithKeys("esc"),
+			key.WithHelp("esc", "cancel"),
+		),
+		Enter: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "start/stop timer"),
+		),
+		CtrlC: key.NewBinding(
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "exit"),
+		),
+	}
+
 	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "tasks"
 	l.SetSpinner(spinner.Pulse)
 	l.DisableQuitKeybindings()
-	l.AdditionalFullHelpKeys = func() []key.Binding {
-		return []key.Binding{keyEsc, keyEnter, keyCtrlC}
+	l.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			keymap.Esc,
+			keymap.Enter,
+			keymap.CtrlC,
+		}
 	}
 
 	return mainModel{
@@ -53,6 +63,7 @@ func Init(db *badger.DB, project string) tea.Model {
 		db:      db,
 		input:   input,
 		project: project,
+		keymap:  keymap,
 	}
 }
 
@@ -63,6 +74,7 @@ type mainModel struct {
 	db      *badger.DB
 	project string
 	err     error
+	keymap  *keymap
 }
 
 func (m mainModel) Init() tea.Cmd {
@@ -77,6 +89,12 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 	var newMsg tea.Msg
+
+	m.list.DisableQuitKeybindings()
+	m.list.KeyMap.CursorUp.SetEnabled(!m.input.Focused() && !m.list.SettingFilter())
+	m.list.KeyMap.CursorDown.SetEnabled(!m.input.Focused() && !m.list.SettingFilter())
+	m.list.KeyMap.Filter.SetEnabled(!m.input.Focused() && !m.list.SettingFilter())
+	m.keymap.Esc.SetEnabled(m.input.Focused())
 
 	switch msg := msg.(type) {
 	case errMsg:
@@ -105,19 +123,19 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.ResetFilter()
 		cmds = append(cmds, m.list.SetItems(items), updateProjectTimerCmd(msg.tasks))
 	case tea.KeyMsg:
-		if key.Matches(msg, keyCtrlC) {
+		if key.Matches(msg, m.keymap.CtrlC) {
 			log.Println("tea.KeyMsg -> ctrl+c")
 			return m, tea.Sequentially(closeTasksCmd(m.db), tea.Quit)
 		}
 
 		if m.list.SettingFilter() {
+			log.Println("tea.KeyMsg -> settingFilter")
 			break
 		}
 
-		if key.Matches(msg, keyEsc) {
-			log.Println("tea.KeyMsg -> esc ->")
+		if key.Matches(msg, m.keymap.Esc) {
 			if m.input.Focused() {
-				log.Println("tea.KeyMsg -> esc -> -> input.Focused")
+				log.Println("tea.KeyMsg -> esc -> input.Focused")
 				m.input.Blur()
 				cmds = append(cmds, tea.Sequentially(
 					closeTasksCmd(m.db),
@@ -125,8 +143,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				)
 			}
 			newMsg = doNotPropagateMsg{}
-		} else if key.Matches(msg, keyEnter) {
-			log.Println("tea.KeyMsg -> enter")
+		} else if key.Matches(msg, m.keymap.Enter) {
 			if m.input.Focused() {
 				log.Println("tea.KeyMsg -> enter -> input.Focused")
 				cmds = append(cmds, tea.Sequentially(
