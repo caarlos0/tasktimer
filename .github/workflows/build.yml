@@ -36,6 +36,7 @@ jobs:
           go mod tidy
           go test -v ./...
           go build -o tt .
+      - uses: sigstore/cosign-installer@v1.1.0
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
@@ -46,8 +47,10 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          FURY_TOKEN: ${{ secrets.FURY_TOKEN }}
           GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
           TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
           TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
           TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          COSIGN_PWD: ${{ secrets.COSIGN_PWD }}
