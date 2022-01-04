@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/dgraph-io/badger/v3 v3.2103.2
 	github.com/mattn/go-isatty v0.0.14
-	github.com/muesli/go-app-paths v0.2.1
+	github.com/muesli/go-app-paths v0.2.2
 	github.com/spf13/cobra v1.3.0
 )
 
