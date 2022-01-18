@@ -57,6 +57,7 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 		newFromJSONCmd().cmd,
 		newListCmd().cmd,
 		newEditCmd().cmd,
+		newManCmd().cmd,
 	)
 
 	root.cmd = cmd

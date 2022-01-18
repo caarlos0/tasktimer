@@ -7,7 +7,7 @@ includes:
   - from_url:
       url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/build.yml
   - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/package_with_completions.yml
+      url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/package_with_completions_and_manpages.yml
   - from_url:
       url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/release.yml
   - from_url:
