@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/caarlos0/timea.go v1.0.2
-	github.com/charmbracelet/bubbles v0.10.0
+	github.com/charmbracelet/bubbles v0.10.1
 	github.com/charmbracelet/bubbletea v0.19.3
 	github.com/charmbracelet/glamour v0.4.0
 	github.com/charmbracelet/lipgloss v0.4.0
@@ -18,7 +18,7 @@ require (
 
 require (
 	github.com/alecthomas/chroma v0.10.0 // indirect
-	github.com/atotto/clipboard v0.1.2 // indirect
+	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
