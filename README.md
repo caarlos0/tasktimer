@@ -102,6 +102,12 @@ gpgcheck=0' | sudo tee /etc/yum.repos.d/caarlos0.repo
 sudo yum install tt
 ```
 
+**arch linux**:
+
+```sh
+yay -S tasktimer-bin
+```
+
 **deb/rpm/apk**:
 
 Download the `.apk`, `.deb` or `.rpm` from the [releases page][releases] and install with the appropriate commands.
