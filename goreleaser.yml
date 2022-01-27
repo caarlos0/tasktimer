@@ -3,7 +3,7 @@ variables:
   homepage: https://github.com/caarlos0/tasktimer
   repository: https://github.com/caarlos0/tasktimer
   description: Task Timer (tt) is a dead simple TUI task timer
-  aur_project_name: task-timer
+  aur_project_name: tasktimer
 includes:
   - from_url:
       url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/build.yml
