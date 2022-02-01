@@ -11,7 +11,7 @@ require (
 	github.com/dgraph-io/badger/v3 v3.2103.2
 	github.com/mattn/go-isatty v0.0.14
 	github.com/muesli/go-app-paths v0.2.2
-	github.com/muesli/mango v0.0.0-20220118122812-f367188b892e
+	github.com/muesli/mango-cobra v0.0.0-20220201014606-122d08dcc447
 	github.com/muesli/roff v0.1.0
 	github.com/spf13/cobra v1.3.0
 )
@@ -40,6 +40,8 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.17 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
+	github.com/muesli/mango v0.0.0-20220201014152-f7df5a1c5b4b // indirect
+	github.com/muesli/mango-pflag v0.0.0-20220201014449-d694870c5590 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.9.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
