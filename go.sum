@@ -340,8 +340,12 @@ github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b h1:1XF24mVaiu7u+CFywTd
 github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b/go.mod h1:fQuZ0gauxyBcmsdE3ZT4NasjaRdxmbCS0jRHsrWu3Ho=
 github.com/muesli/go-app-paths v0.2.2 h1:NqG4EEZwNIhBq/pREgfBmgDmt3h1Smr1MjZiXbpZUnI=
 github.com/muesli/go-app-paths v0.2.2/go.mod h1:SxS3Umca63pcFcLtbjVb+J0oD7cl4ixQWoBKhGEtEho=
-github.com/muesli/mango v0.0.0-20220118122812-f367188b892e h1:ykZ/Hqqvqm2lmZ1YoruxTWaOb90IKlkMuT0Io9baO+A=
-github.com/muesli/mango v0.0.0-20220118122812-f367188b892e/go.mod h1:r40g5Hx6ZzbjDW0GZhCpSX2Wyt9SPSDRoQGaODqxSz4=
+github.com/muesli/mango v0.0.0-20220201014152-f7df5a1c5b4b h1:kGcKjlZqUNbpUjBMdIq5/RbA2gN9ypH0Tv+MNBtCgK4=
+github.com/muesli/mango v0.0.0-20220201014152-f7df5a1c5b4b/go.mod h1:5XFpbC8jY5UUv89YQciiXNlbi+iJgt29VDC5xbzrLL4=
+github.com/muesli/mango-cobra v0.0.0-20220201014606-122d08dcc447 h1:R3deta3TkTtx/COvHF0zlPxZlg4uG+Ekt7GMfB4vDVI=
+github.com/muesli/mango-cobra v0.0.0-20220201014606-122d08dcc447/go.mod h1:cww/23x1UfmOIUSsDI/kSsGWDKGQEkmzfN4EF66xXfA=
+github.com/muesli/mango-pflag v0.0.0-20220201014449-d694870c5590 h1:bZgkcUsck7Y6kMUcpettBv6jUck4rTrgPEBIKwFbGpM=
+github.com/muesli/mango-pflag v0.0.0-20220201014449-d694870c5590/go.mod h1:o2wTF9T2N5YEx+lHxQ6R3RsUg9NH4jyaOIlnJN5KQ04=
 github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68/go.mod h1:Xk+z4oIWdQqJzsxyjgl3P22oYZnHdZ8FFTHAQQt5BMQ=
 github.com/muesli/reflow v0.3.0 h1:IFsN6K9NfGtjeggFP+68I4chLZV2yIKsXJFNZ+eWh6s=
 github.com/muesli/reflow v0.3.0/go.mod h1:pbwTDkVPibjO2kyvBQRBxTWEEGDGq0FlB1BIKtnHY/8=
