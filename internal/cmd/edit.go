@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -34,7 +35,15 @@ func newEditCmd() *editCmd {
 			}
 
 			log.Printf("%s %s\n", editor, tmp)
-			edit := exec.Command(editor, tmp)
+
+			editorArgs := []string{tmp}
+			if strings.ContainsAny(editor, " ") {
+				editorParts := strings.Split(editor, " ")
+				editor = editorParts[0]
+				editorArgs = append(editorArgs, editorParts[1:]...)
+			}
+
+			edit := exec.Command(editor, editorArgs...)
 			edit.Stderr = os.Stderr
 			edit.Stdout = os.Stdout
 			edit.Stdin = os.Stdin
