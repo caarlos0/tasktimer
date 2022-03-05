@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -29,21 +28,19 @@ func newEditCmd() *editCmd {
 				return err
 			}
 
-			editor := os.Getenv("EDITOR")
-			if editor == "" {
+			editor := strings.Fields(os.Getenv("EDITOR"))
+			if len(editor) == 0 {
 				return fmt.Errorf("no $EDITOR set")
 			}
 
-			log.Printf("%s %s\n", editor, tmp)
-
-			editorArgs := []string{tmp}
-			if strings.ContainsAny(editor, " ") {
-				editorParts := strings.Split(editor, " ")
-				editor = editorParts[0]
-				editorArgs = append(editorArgs, editorParts[1:]...)
+			editorCmd := editor[0]
+			var editorArgs []string
+			if len(editor) > 1 {
+				editorArgs = append(editorArgs, editor[1:]...)
 			}
+			editorArgs = append(editorArgs, tmp)
 
-			edit := exec.Command(editor, editorArgs...)
+			edit := exec.Command(editorCmd, editorArgs...)
 			edit.Stderr = os.Stderr
 			edit.Stdout = os.Stdout
 			edit.Stdin = os.Stdin
