@@ -8,20 +8,20 @@ import (
 	"github.com/caarlos0/tasktimer/internal/ui"
 	"github.com/charmbracelet/glamour"
 	"github.com/mattn/go-isatty"
-	"github.com/spf13/cobra"
+	"github.com/muesli/coral"
 )
 
 type reportCmd struct {
-	cmd *cobra.Command
+	cmd *coral.Command
 }
 
 func newRerportCmd() *reportCmd {
-	cmd := &cobra.Command{
+	cmd := &coral.Command{
 		Use:     "report",
 		Aliases: []string{"r"},
 		Short:   "Print a markdown report of the given project to STDOUT",
-		Args:    cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:    coral.NoArgs,
+		RunE: func(cmd *coral.Command, args []string) error {
 			project := cmd.Parent().Flag("project").Value.String()
 			db, f, err := setup(project)
 			if err != nil {

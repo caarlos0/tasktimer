@@ -9,20 +9,20 @@ import (
 
 	"github.com/charmbracelet/glamour"
 	"github.com/mattn/go-isatty"
+	"github.com/muesli/coral"
 	gap "github.com/muesli/go-app-paths"
-	"github.com/spf13/cobra"
 )
 
 type listCmd struct {
-	cmd *cobra.Command
+	cmd *coral.Command
 }
 
 func newListCmd() *listCmd {
-	cmd := &cobra.Command{
+	cmd := &coral.Command{
 		Use:   "list",
 		Short: "List all projects",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:  coral.NoArgs,
+		RunE: func(cmd *coral.Command, args []string) error {
 			home := gap.NewScope(gap.User, "tasktimer")
 			datas, err := home.DataDirs()
 			if err != nil {

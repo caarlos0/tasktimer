@@ -10,10 +10,10 @@ require (
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/dgraph-io/badger/v3 v3.2103.2
 	github.com/mattn/go-isatty v0.0.14
+	github.com/muesli/coral v1.0.0
 	github.com/muesli/go-app-paths v0.2.2
-	github.com/muesli/mango-cobra v0.0.0-20220201014606-122d08dcc447
+	github.com/muesli/mango-coral v1.0.1
 	github.com/muesli/roff v0.1.0
-	github.com/spf13/cobra v1.3.0
 )
 
 require (
@@ -32,6 +32,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/klauspost/compress v1.12.3 // indirect
@@ -40,8 +41,8 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.17 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
-	github.com/muesli/mango v0.0.0-20220201014152-f7df5a1c5b4b // indirect
-	github.com/muesli/mango-pflag v0.0.0-20220201014449-d694870c5590 // indirect
+	github.com/muesli/mango v0.1.0 // indirect
+	github.com/muesli/mango-pflag v0.1.0 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
@@ -56,4 +57,5 @@ require (
 	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
 	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
