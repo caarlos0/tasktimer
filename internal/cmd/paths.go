@@ -3,19 +3,19 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
+	"github.com/muesli/coral"
 )
 
 type pathsCmd struct {
-	cmd *cobra.Command
+	cmd *coral.Command
 }
 
 func newPathsCmd() *pathsCmd {
-	cmd := &cobra.Command{
+	cmd := &coral.Command{
 		Use:   "paths",
 		Short: "Print the paths being used for logs, data et al",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:  coral.NoArgs,
+		RunE: func(cmd *coral.Command, args []string) error {
 			project := cmd.Parent().Flag("project").Value.String()
 			logfile, dbfile, err := paths(project)
 			if err != nil {
