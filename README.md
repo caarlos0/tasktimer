@@ -77,12 +77,6 @@ At any time, check `--help` to see the available options.
 brew install caarlos0/tap/tt
 ```
 
-**snap**:
-
-```sh
-snap install tt
-```
-
 **apt**:
 
 ```sh
