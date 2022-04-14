@@ -9,19 +9,19 @@ import (
 
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
-	"github.com/muesli/coral"
+	"github.com/spf13/cobra"
 )
 
 type fromJSONCmd struct {
-	cmd *coral.Command
+	cmd *cobra.Command
 }
 
 func newFromJSONCmd() *fromJSONCmd {
-	cmd := &coral.Command{
+	cmd := &cobra.Command{
 		Use:   "from-json",
 		Short: "Imports a JSON into a project - WARNING: it will wipe the project first, use with care!",
-		Args:  coral.ExactArgs(1),
-		RunE: func(cmd *coral.Command, args []string) error {
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			project := cmd.Parent().Flag("project").Value.String()
 			db, f, err := setup(project)
 			if err != nil {

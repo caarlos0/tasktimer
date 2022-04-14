@@ -8,20 +8,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/muesli/coral"
+	"github.com/spf13/cobra"
 )
 
 type editCmd struct {
-	cmd *coral.Command
+	cmd *cobra.Command
 }
 
 func newEditCmd() *editCmd {
-	cmd := &coral.Command{
+	cmd := &cobra.Command{
 		Use:     "edit",
 		Short:   "Syntactic sugar for to-json | $EDITOR | from-json",
 		Aliases: []string{"e"},
-		Args:    coral.NoArgs,
-		RunE: func(cmd *coral.Command, args []string) error {
+		Args:    cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
 			tmp := filepath.Join(os.TempDir(), fmt.Sprintf("tt-%d.json", time.Now().Unix()))
 
 			if err := newToJSONCmd().cmd.RunE(cmd, []string{tmp}); err != nil {

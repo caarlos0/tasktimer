@@ -4,19 +4,19 @@ import (
 	"os"
 
 	"github.com/caarlos0/tasktimer/internal/ui"
-	"github.com/muesli/coral"
+	"github.com/spf13/cobra"
 )
 
 type toJSONCmd struct {
-	cmd *coral.Command
+	cmd *cobra.Command
 }
 
 func newToJSONCmd() *toJSONCmd {
-	cmd := &coral.Command{
+	cmd := &cobra.Command{
 		Use:   "to-json",
 		Short: "Exports the database as JSON",
-		Args:  coral.MaximumNArgs(1),
-		RunE: func(cmd *coral.Command, args []string) error {
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			project := cmd.Parent().Flag("project").Value.String()
 			db, f, err := setup(project)
 			if err != nil {

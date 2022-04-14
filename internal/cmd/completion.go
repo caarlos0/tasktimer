@@ -1,13 +1,13 @@
 package cmd
 
-import "github.com/muesli/coral"
+import "github.com/spf13/cobra"
 
 type completionCmd struct {
-	cmd *coral.Command
+	cmd *cobra.Command
 }
 
 func newCompletionCmd() *completionCmd {
-	cmd := &coral.Command{
+	cmd := &cobra.Command{
 		Use:   "completion [bash|zsh|fish]",
 		Short: "Print shell autocompletion scripts for tt",
 		Long: `To load completions:
@@ -34,8 +34,8 @@ Fish:
 		DisableFlagsInUseLine: true,
 		Hidden:                true,
 		ValidArgs:             []string{"bash", "zsh", "fish"},
-		Args:                  coral.ExactValidArgs(1),
-		RunE: func(cmd *coral.Command, args []string) error {
+		Args:                  cobra.ExactValidArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 			switch args[0] {
 			case "bash":

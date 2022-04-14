@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/caarlos0/tasktimer/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/muesli/coral"
+	"github.com/spf13/cobra"
 )
 
 func Execute(version string, exit func(int), args []string) {
@@ -11,7 +11,7 @@ func Execute(version string, exit func(int), args []string) {
 }
 
 type rootCmd struct {
-	cmd     *coral.Command
+	cmd     *cobra.Command
 	project string
 	exit    func(int)
 }
@@ -27,12 +27,12 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 	root := &rootCmd{
 		exit: exit,
 	}
-	cmd := &coral.Command{
+	cmd := &cobra.Command{
 		Use:          "tt",
 		Short:        "Task Timer (tt) is a dead simple TUI task timer",
 		Version:      version,
 		SilenceUsage: true,
-		RunE: func(cmd *coral.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			db, f, err := setup(root.project)
 			if err != nil {
 				return err

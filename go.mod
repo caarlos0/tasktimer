@@ -10,10 +10,10 @@ require (
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/dgraph-io/badger/v3 v3.2103.2
 	github.com/mattn/go-isatty v0.0.14
-	github.com/muesli/coral v1.0.0
 	github.com/muesli/go-app-paths v0.2.2
-	github.com/muesli/mango-coral v1.0.1
+	github.com/muesli/mango-cobra v1.1.0
 	github.com/muesli/roff v0.1.0
+	github.com/spf13/cobra v1.4.0
 )
 
 require (
