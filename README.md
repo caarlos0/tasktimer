@@ -37,6 +37,8 @@ You can also press <kbd>ESC</kbd> stop the current task and blur the input
 field and navigate  around a long list of tasks using the
 arrow keys/page up/page down/etc.
 
+Note: there is no concept of "resuming tasks", you can however create several tasks with the same description.
+
 ## Report
 
 You can extract a markdown file by running:
