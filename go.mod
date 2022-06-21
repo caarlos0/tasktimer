@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/caarlos0/timea.go v1.0.2
-	github.com/charmbracelet/bubbles v0.10.3
-	github.com/charmbracelet/bubbletea v0.20.0
+	github.com/charmbracelet/bubbles v0.11.0
+	github.com/charmbracelet/bubbletea v0.21.0
 	github.com/charmbracelet/glamour v0.5.0
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/dgraph-io/badger/v3 v3.2103.2
@@ -13,7 +13,7 @@ require (
 	github.com/muesli/go-app-paths v0.2.2
 	github.com/muesli/mango-cobra v1.1.0
 	github.com/muesli/roff v0.1.0
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 )
 
 require (
