@@ -26,10 +26,18 @@ func TestApp(t *testing.T) {
 	})
 	m := Init(db, "test")
 	teatest.TestModel(t, m, func(p teatest.Program, in io.Writer) {
+		p.Send(tea.WindowSizeMsg{
+			Width:  100,
+			Height: 20,
+		})
 		teatest.TypeText(p, "new task")
 		p.Send(tea.KeyMsg{Type: tea.KeyEnter})
 		time.Sleep(time.Second)
 		p.Send(tea.KeyMsg{Type: tea.KeyEsc})
+		p.Send(tea.KeyMsg{Type: tea.KeyEnter})
+		teatest.TypeText(p, "another task")
+		p.Send(tea.KeyMsg{Type: tea.KeyEnter})
+		time.Sleep(time.Millisecond * 100)
 		p.Send(tea.KeyMsg{Type: tea.KeyCtrlC})
 	}, func(out []byte) {
 		teatest.RequireEqualOutput(t, out)
@@ -40,11 +48,11 @@ func TestApp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(tasks) != 1 {
-		t.Fatalf("expected 1 task, got %d", len(tasks))
+	if len(tasks) != 2 {
+		t.Fatalf("expected 2 tasks, got %d", len(tasks))
 	}
 
-	task := tasks[0]
+	task := tasks[1]
 	if d := task.EndAt.Sub(task.StartAt); d != time.Second {
 		t.Fatalf("expected 1 second task, got %v", d)
 	}
