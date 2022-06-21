@@ -1,0 +1,28 @@
+[?25lproject: [1;mtest[0m • total: [1;m0s[0m • today: [1;m0s[0m
+
+❯ [7mN[0mew task description...
+
+   [;mtasks[0m                                                    
+                                                            
+  1 item                                                    
+                                                            
+│ [1mnew task[0m                                                  
+│ now - 0s                                                  
+                                                            
+                                                            
+  esc cancel • enter start/stop timer • ctrl+c exit • ? more
+[0D[1A[1A[1A[1A[2K[1A[1A[1A[1A[1A[1A[1A[1A[1A[0D[2Kproject: [1;mtest[0m • total: [1;m1s[0m • today: [1;m1s[0m
+[1B[1B[1B[1B[1B[1B[1B[1B│ now - 1s                                                  
+[1B[1B[1B[0D[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[2K[1A[1A[0D[2Kproject: [1;mtest[0m • total: [1;m1s[0m • today: [1;m1s[0m
+[1B❯ New task description...
+[1B[1B[1B[1B[1B[1B[1B[1B[1B[1B[0D[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[1A[1A[1A[0D[2Kproject: [1;mtest[0m • total: [1;m1s[0m • today: [1;m1s[0m
+[1B[1B[1B   [;mtasks[0m                                                                      
+                                                                              
+  1 item                                                                      
+                                                                              
+│ [1mnew task[0m                                                                    
+│ now - 1s                                                                    
+                                                                              
+                                                                              
+  ↑/k up • ↓/j down • / filter • enter start/stop timer • ctrl+c exit • ? more
+[0D[2K[?1002l[?1003l[?25h
