@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/caarlos0/timea.go v1.0.2
 	github.com/charmbracelet/bubbles v0.12.0
-	github.com/charmbracelet/bubbletea v0.21.0
+	github.com/charmbracelet/bubbletea v0.22.0
 	github.com/charmbracelet/glamour v0.5.0
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/dgraph-io/badger/v3 v3.2103.2
@@ -41,7 +41,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.17 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
-	github.com/muesli/cancelreader v0.2.0 // indirect
+	github.com/muesli/cancelreader v0.2.1 // indirect
 	github.com/muesli/mango v0.1.0 // indirect
 	github.com/muesli/mango-pflag v0.1.0 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
