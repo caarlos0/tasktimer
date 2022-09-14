@@ -112,10 +112,6 @@ Download the `.apk`, `.deb` or `.rpm` from the [releases page][releases] and ins
 
 Download the pre-compiled binaries from the [releases page][releases] or clone the repo build from source.
 
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/caarlos0/clone-org.svg)](https://starchart.cc/caarlos0/clone-org)
-
 ## FAQ
 
 ### Where are data and logs stored?
