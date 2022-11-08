@@ -1,6 +1,6 @@
 module github.com/caarlos0/tasktimer
 
-go 1.17
+go 1.19
 
 require (
 	github.com/caarlos0/timea.go v1.0.2
