@@ -20,6 +20,7 @@ type keymap struct {
 	Esc   key.Binding
 	Enter key.Binding
 	CtrlC key.Binding
+	R key.Binding
 }
 
 func Init(db *badger.DB, project string) tea.Model {
@@ -43,6 +44,10 @@ func Init(db *badger.DB, project string) tea.Model {
 			key.WithKeys("ctrl+c"),
 			key.WithHelp("ctrl+c", "exit"),
 		),
+		R: key.NewBinding(
+			key.WithKeys("r"),
+			key.WithHelp("r", "restart"),
+		),
 	}
 
 	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
@@ -54,6 +59,7 @@ func Init(db *badger.DB, project string) tea.Model {
 			keymap.Esc,
 			keymap.Enter,
 			keymap.CtrlC,
+			keymap.R,
 		}
 	}
 
@@ -165,6 +171,13 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				log.Println("tea.KeyMsg -> !input.Focused -> enter")
 				m.input.Focus()
 				cmds = append(cmds, textinput.Blink)
+			}
+			if key.Matches(msg, m.keymap.R) {
+				log.Println("tea.KeyMsg -> !input.Focused -> R")
+				m.input.SetValue(m.list.SelectedItem().FilterValue())
+				m.input.Focus()
+				cmds = append(cmds, textinput.Blink)
+				newMsg = doNotPropagateMsg{};
 			}
 		}
 	}
