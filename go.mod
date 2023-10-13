@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/glamour v0.6.0
-	github.com/charmbracelet/lipgloss v0.9.0
+	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/dgraph-io/badger/v3 v3.2103.5
 	github.com/mattn/go-isatty v0.0.19
 	github.com/muesli/go-app-paths v0.2.2
