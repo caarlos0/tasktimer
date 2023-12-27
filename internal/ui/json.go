@@ -20,9 +20,11 @@ func WriteProjectJSON(db *badger.DB, project string, w io.Writer) error {
 	var expTasks []model.ExportedTask
 	for _, t := range tasks {
 		expTasks = append(expTasks, model.ExportedTask{
-			Title:   t.Title,
-			StartAt: t.StartAt,
-			EndAt:   t.EndAt,
+			Title:          t.Title,
+			FirstStartedAt: t.FirstStartedAt,
+			LastEndedAt:    t.LastEndedAt,
+			Durations:      t.Durations,
+			Total:          t.Total,
 		})
 	}
 	bts, err := json.MarshalIndent(expTasks, "", "  ")

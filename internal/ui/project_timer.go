@@ -44,19 +44,22 @@ func updateProjectTimerCmd(tasks []model.Task) tea.Cmd {
 }
 
 func sumTasksTimes(tasks []model.Task, since time.Time) time.Duration {
-	d := time.Duration(0)
+	td := time.Duration(0)
 	for _, t := range tasks {
-		if t.StartAt.Before(since) {
-			continue
-		}
+		for _, d := range t.Durations {
 
-		z := t.EndAt
-		if z.IsZero() {
-			z = time.Now()
+			if d.StartAt.Before(since) {
+				continue
+			}
+
+			z := d.EndAt
+			if z.IsZero() {
+				z = time.Now()
+			}
+			td += z.Sub(d.StartAt)
 		}
-		d += z.Sub(t.StartAt)
 	}
-	return d
+	return td
 }
 
 func todayAtMidnight() time.Time {
