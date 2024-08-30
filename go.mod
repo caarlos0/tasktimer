@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/caarlos0/timea.go v1.2.0
 	github.com/charmbracelet/bubbles v0.19.0
-	github.com/charmbracelet/bubbletea v1.0.0
+	github.com/charmbracelet/bubbletea v1.0.1
 	github.com/charmbracelet/glamour v0.8.0
 	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/dgraph-io/badger/v3 v3.2103.5
