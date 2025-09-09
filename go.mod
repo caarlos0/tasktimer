@@ -1,13 +1,13 @@
 module github.com/caarlos0/tasktimer
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.1
 
 require (
 	github.com/caarlos0/timea.go v1.2.0
 	github.com/charmbracelet/bubbles v0.21.0
-	github.com/charmbracelet/bubbletea v1.3.7
+	github.com/charmbracelet/bubbletea v1.3.8
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/dgraph-io/badger/v3 v3.2103.5
@@ -63,7 +63,7 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.5 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
