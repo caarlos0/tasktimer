@@ -12,6 +12,8 @@ type toJSONCmd struct {
 }
 
 func newToJSONCmd() *toJSONCmd {
+	var grouped bool
+
 	cmd := &cobra.Command{
 		Use:   "to-json",
 		Short: "Exports the database as JSON",
@@ -25,18 +27,24 @@ func newToJSONCmd() *toJSONCmd {
 			defer db.Close()
 			defer f.Close()
 
+			var fi *os.File = os.Stdout
 			if len(args) > 0 {
-				f, err := os.OpenFile(args[0], os.O_TRUNC|os.O_CREATE|os.O_RDWR, 0o666)
+				fi, err = os.OpenFile(args[0], os.O_TRUNC|os.O_CREATE|os.O_RDWR, 0o666)
 				if err != nil {
 					return err
 				}
-				defer f.Close()
-				return ui.WriteProjectJSON(db, project, f)
+				defer fi.Close()
 			}
 
-			return ui.WriteProjectJSON(db, project, os.Stdout)
+			if grouped {
+				return ui.WriteProjectJSONGrouped(db, project, fi)
+			}
+
+			return ui.WriteProjectJSON(db, project, fi)
 		},
 	}
 
-	return &toJSONCmd{cmd: cmd}
+	jcmd := toJSONCmd{cmd: cmd}
+	jcmd.cmd.Flags().BoolVarP(&grouped, "grouped", "g", false, "grouped by desc")
+	return &jcmd
 }

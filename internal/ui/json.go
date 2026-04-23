@@ -34,3 +34,27 @@ func WriteProjectJSON(db *badger.DB, project string, w io.Writer) error {
 
 	return err
 }
+
+func WriteProjectJSONGrouped(db *badger.DB, project string, w io.Writer) error {
+	tasks, err := store.GetTaskList(db)
+	if err != nil {
+		return err
+	}
+
+	expTasksMap := model.ExportedTasksGrouped{}
+	for _, t := range tasks {
+		expTasksMap[t.Title] = append(expTasksMap[t.Title], model.ExportedTask{
+			StartAt: t.StartAt,
+			EndAt:   t.EndAt,
+		})
+	}
+
+	bts, err := json.MarshalIndent(expTasksMap, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(bts)
+
+	return err
+}

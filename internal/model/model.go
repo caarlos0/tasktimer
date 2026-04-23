@@ -22,13 +22,23 @@ func (t Task) Bytes() []byte {
 }
 
 type ExportedTask struct {
-	Title   string    `json:"desc"`
+	Title   string    `json:"desc,omitempty"`
 	StartAt time.Time `json:"start"`
 	EndAt   time.Time `json:"end"`
 }
 
 func (t ExportedTask) Bytes() []byte {
 	bts, err := json.Marshal(&t)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return bts
+}
+
+type ExportedTasksGrouped map[string][]ExportedTask
+
+func (g ExportedTasksGrouped) Bytes() []byte {
+	bts, err := json.Marshal(&g)
 	if err != nil {
 		log.Fatalln(err)
 	}
