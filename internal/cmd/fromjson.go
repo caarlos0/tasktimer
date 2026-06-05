@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -40,10 +39,11 @@ func newFromJSONCmd() *fromJSONCmd {
 				return fmt.Errorf("input json is not in the correct format: %w", err)
 			}
 
-			tmp, err := ioutil.TempFile("", "tasktimer-"+project)
+			tmp, err := os.CreateTemp("", "tasktimer-"+project)
 			if err != nil {
 				return fmt.Errorf("failed to create backup file: %w", err)
 			}
+			defer tmp.Close()
 			if _, err := db.Backup(tmp, 0); err != nil {
 				return fmt.Errorf("failed to backup to %s: %w", tmp.Name(), err)
 			}

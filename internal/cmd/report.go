@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/caarlos0/tasktimer/internal/ui"
 	"github.com/charmbracelet/glamour"
@@ -12,10 +13,13 @@ import (
 )
 
 type reportCmd struct {
-	cmd *cobra.Command
+	cmd   *cobra.Command
+	since string
+	until string
 }
 
-func newRerportCmd() *reportCmd {
+func newReportCmd() *reportCmd {
+	r := &reportCmd{}
 	cmd := &cobra.Command{
 		Use:     "report",
 		Aliases: []string{"r"},
@@ -30,8 +34,23 @@ func newRerportCmd() *reportCmd {
 			defer db.Close()
 			defer f.Close()
 
+			var since, until time.Time
+			if r.since != "" {
+				since, err = time.Parse("2006-01-02", r.since)
+				if err != nil {
+					return fmt.Errorf("--since: invalid date %q, use YYYY-MM-DD", r.since)
+				}
+			}
+			if r.until != "" {
+				until, err = time.Parse("2006-01-02", r.until)
+				if err != nil {
+					return fmt.Errorf("--until: invalid date %q, use YYYY-MM-DD", r.until)
+				}
+				until = until.Add(24 * time.Hour)
+			}
+
 			var buf bytes.Buffer
-			if err := ui.WriteProjectMarkdown(db, project, &buf); err != nil {
+			if err := ui.WriteProjectMarkdown(db, project, &buf, since, until); err != nil {
 				return err
 			}
 
@@ -50,5 +69,8 @@ func newRerportCmd() *reportCmd {
 		},
 	}
 
-	return &reportCmd{cmd: cmd}
+	cmd.Flags().StringVar(&r.since, "since", "", "Show tasks on or after this date (YYYY-MM-DD)")
+	cmd.Flags().StringVar(&r.until, "until", "", "Show tasks on or before this date (YYYY-MM-DD)")
+	r.cmd = cmd
+	return r
 }

@@ -23,6 +23,7 @@ func newEditCmd() *editCmd {
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			tmp := filepath.Join(os.TempDir(), fmt.Sprintf("tt-%d.json", time.Now().Unix()))
+			defer os.Remove(tmp)
 
 			if err := newToJSONCmd().cmd.RunE(cmd, []string{tmp}); err != nil {
 				return err
@@ -30,7 +31,7 @@ func newEditCmd() *editCmd {
 
 			editor := strings.Fields(os.Getenv("EDITOR"))
 			if len(editor) == 0 {
-				return fmt.Errorf("no $EDITOR set")
+				return fmt.Errorf("EDITOR environment variable is not set")
 			}
 
 			editorCmd := editor[0]

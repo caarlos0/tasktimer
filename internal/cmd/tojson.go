@@ -26,7 +26,7 @@ func newToJSONCmd() *toJSONCmd {
 			defer f.Close()
 
 			if len(args) > 0 {
-				f, err := os.OpenFile(args[0], os.O_TRUNC|os.O_CREATE|os.O_RDWR, 0o666)
+				f, err := os.OpenFile(args[0], os.O_TRUNC|os.O_CREATE|os.O_RDWR, 0o644)
 				if err != nil {
 					return err
 				}

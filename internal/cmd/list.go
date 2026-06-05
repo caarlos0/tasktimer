@@ -6,7 +6,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/caarlos0/tasktimer/internal/store"
+	"github.com/caarlos0/tasktimer/internal/ui"
 	"github.com/charmbracelet/glamour"
 	"github.com/mattn/go-isatty"
 	gap "github.com/muesli/go-app-paths"
@@ -14,10 +17,12 @@ import (
 )
 
 type listCmd struct {
-	cmd *cobra.Command
+	cmd     *cobra.Command
+	verbose bool
 }
 
 func newListCmd() *listCmd {
+	l := &listCmd{}
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all projects",
@@ -39,7 +44,27 @@ func newListCmd() *listCmd {
 						return err
 					}
 					if filepath.Ext(path) == ".db" {
-						_, _ = fmt.Fprintln(&buf, "- "+strings.Replace(filepath.Base(path), ".db", "", 1))
+						name := strings.Replace(filepath.Base(path), ".db", "", 1)
+						if l.verbose {
+							db, f, err := setup(name)
+							if err != nil {
+								_, _ = fmt.Fprintf(&buf, "- %s (error: %v)\n", name, err)
+								return filepath.SkipDir
+							}
+							tasks, err := store.GetTaskList(db)
+							db.Close()
+							f.Close()
+							if err != nil {
+								_, _ = fmt.Fprintf(&buf, "- %s (error: %v)\n", name, err)
+								return filepath.SkipDir
+							}
+							total := ui.SumTasksTimes(tasks, time.Time{})
+							h := int(total.Hours())
+							m := int(total.Minutes()) % 60
+							_, _ = fmt.Fprintf(&buf, "- %s (%d tasks, %dh %dm)\n", name, len(tasks), h, m)
+						} else {
+							_, _ = fmt.Fprintln(&buf, "- "+name)
+						}
 						return filepath.SkipDir
 					}
 					return nil
@@ -62,5 +87,7 @@ func newListCmd() *listCmd {
 		},
 	}
 
-	return &listCmd{cmd: cmd}
+	cmd.Flags().BoolVarP(&l.verbose, "verbose", "v", false, "Show task count and total time per project")
+	l.cmd = cmd
+	return l
 }

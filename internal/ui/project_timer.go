@@ -25,10 +25,10 @@ func (m projectTimerModel) Update(msg tea.Msg) (projectTimerModel, tea.Cmd) {
 
 func (m projectTimerModel) View() string {
 	return secondaryForeground.Render("total: ") +
-		activeForegroundBold.Render(sumTasksTimes(m.tasks, time.Time{}).Round(time.Second).String()) +
+		activeForegroundBold.Render(SumTasksTimes(m.tasks, time.Time{}).Round(time.Second).String()) +
 		separator +
 		secondaryForeground.Render("today: ") +
-		activeForegroundBold.Render(sumTasksTimes(m.tasks, todayAtMidnight()).Round(time.Second).String())
+		activeForegroundBold.Render(SumTasksTimes(m.tasks, todayAtMidnight()).Round(time.Second).String())
 }
 
 // msgs and cmds
@@ -43,18 +43,37 @@ func updateProjectTimerCmd(tasks []model.Task) tea.Cmd {
 	}
 }
 
-func sumTasksTimes(tasks []model.Task, since time.Time) time.Duration {
+func effectiveEndAt(endAt time.Time, now time.Time) time.Time {
+	if endAt.IsZero() {
+		return now
+	}
+	return endAt
+}
+
+func taskDuration(t model.Task, now time.Time) time.Duration {
+	var d time.Duration
+	switch {
+	case !t.EndAt.IsZero():
+		d = t.EndAt.Sub(t.StartAt) - t.PausedFor
+	case !t.PausedAt.IsZero():
+		d = t.PausedAt.Sub(t.StartAt) - t.PausedFor
+	default:
+		d = now.Sub(t.StartAt) - t.PausedFor
+	}
+	if d < 0 {
+		return 0
+	}
+	return d
+}
+
+func SumTasksTimes(tasks []model.Task, since time.Time) time.Duration {
 	d := time.Duration(0)
+	now := time.Now()
 	for _, t := range tasks {
 		if t.StartAt.Before(since) {
 			continue
 		}
-
-		z := t.EndAt
-		if z.IsZero() {
-			z = time.Now()
-		}
-		d += z.Sub(t.StartAt)
+		d += taskDuration(t, now)
 	}
 	return d
 }

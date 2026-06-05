@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -20,7 +19,9 @@ type keymap struct {
 	Esc   key.Binding
 	Enter key.Binding
 	CtrlC key.Binding
-	R key.Binding
+	R     key.Binding
+	P     key.Binding
+	D     key.Binding
 }
 
 func Init(db *badger.DB, project string) tea.Model {
@@ -48,6 +49,14 @@ func Init(db *badger.DB, project string) tea.Model {
 			key.WithKeys("r"),
 			key.WithHelp("r", "restart"),
 		),
+		P: key.NewBinding(
+			key.WithKeys("p"),
+			key.WithHelp("p", "pause/resume"),
+		),
+		D: key.NewBinding(
+			key.WithKeys("d"),
+			key.WithHelp("d", "delete"),
+		),
 	}
 
 	l := list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
@@ -60,6 +69,8 @@ func Init(db *badger.DB, project string) tea.Model {
 			keymap.Enter,
 			keymap.CtrlC,
 			keymap.R,
+			keymap.P,
+			keymap.D,
 		}
 	}
 
@@ -104,23 +115,22 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case errMsg:
-		log.Println("errMsg")
 		m.err = msg.error
 	case tea.WindowSizeMsg:
-		log.Println("tea.WindowSizeMsg")
 		top, right, bottom, left := listStyle.GetMargin()
 		m.list.SetSize(msg.Width-left-right, msg.Height-top-bottom)
 	case updateTaskListMsg:
-		log.Println("updateTaskListMsg")
 		cmds = append(cmds, m.list.StartSpinner(), updateTaskListCmd(m.db))
 	case taskListUpdatedMsg:
-		log.Println("taskListUpdatedMsg")
 		items := make([]list.Item, 0, len(msg.tasks))
 		for _, t := range msg.tasks {
 			items = append(items, item{
-				title: t.Title,
-				start: t.StartAt,
-				end:   t.EndAt,
+				id:        t.ID,
+				title:     t.Title,
+				start:     t.StartAt,
+				end:       t.EndAt,
+				pausedAt:  t.PausedAt,
+				pausedFor: t.PausedFor,
 			})
 		}
 
@@ -130,18 +140,20 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.list.SetItems(items), updateProjectTimerCmd(msg.tasks))
 	case tea.KeyMsg:
 		if key.Matches(msg, m.keymap.CtrlC) {
-			log.Println("tea.KeyMsg -> ctrl+c")
 			return m, tea.Sequentially(closeTasksCmd(m.db), tea.Quit)
 		}
 
 		if m.list.SettingFilter() {
-			log.Println("tea.KeyMsg -> settingFilter")
 			break
+		}
+
+		if key.Matches(msg, m.keymap.P) {
+			cmds = append(cmds, togglePauseCmd(m.db))
+			newMsg = doNotPropagateMsg{}
 		}
 
 		if m.input.Focused() {
 			if key.Matches(msg, m.keymap.Esc) {
-				log.Println("tea.KeyMsg -> input.Focused -> esc")
 				m.input.Blur()
 				cmds = append(cmds, tea.Sequentially(
 					closeTasksCmd(m.db),
@@ -149,41 +161,47 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				)
 			}
 			if key.Matches(msg, m.keymap.Enter) {
-				log.Println("tea.KeyMsg -> input.Focused -> enter")
-				cmds = append(cmds, tea.Sequentially(
-					closeTasksCmd(m.db),
-					createTaskCmd(m.db, strings.TrimSpace(m.input.Value())),
-				))
+				input := strings.TrimSpace(m.input.Value())
+				if input != "" {
+					cmds = append(cmds, tea.Sequentially(
+						closeTasksCmd(m.db),
+						createTaskCmd(m.db, input),
+					))
+				}
 				m.input.SetValue("")
 			}
 
-			// delegate keypresses to input
-			log.Println("tea.KeyMsg -> input.Focused")
-			m.input, cmd = m.input.Update(msg)
-			cmds = append(cmds, cmd)
+			if newMsg == nil {
+				m.input, cmd = m.input.Update(msg)
+				cmds = append(cmds, cmd)
+			}
 			newMsg = doNotPropagateMsg{}
 		} else {
 			if key.Matches(msg, m.keymap.Esc) {
-				log.Println("tea.KeyMsg -> !input.Focused -> esc")
 				newMsg = doNotPropagateMsg{}
 			}
 			if key.Matches(msg, m.keymap.Enter) {
-				log.Println("tea.KeyMsg -> !input.Focused -> enter")
 				m.input.Focus()
 				cmds = append(cmds, textinput.Blink)
 			}
 			if key.Matches(msg, m.keymap.R) {
-				log.Println("tea.KeyMsg -> !input.Focused -> R")
-				m.input.SetValue(m.list.SelectedItem().FilterValue())
-				m.input.Focus()
-				cmds = append(cmds, textinput.Blink)
-				newMsg = doNotPropagateMsg{};
+				if m.list.SelectedItem() != nil {
+					m.input.SetValue(m.list.SelectedItem().FilterValue())
+					m.input.Focus()
+					cmds = append(cmds, textinput.Blink)
+				}
+				newMsg = doNotPropagateMsg{}
+			}
+			if key.Matches(msg, m.keymap.D) {
+				if selected := m.list.SelectedItem(); selected != nil {
+					cmds = append(cmds, deleteTaskCmd(m.db, selected.(item).id))
+				}
+				newMsg = doNotPropagateMsg{}
 			}
 		}
 	}
 
 	if newMsg != nil {
-		log.Println("tea.KeyMsg -> override original msg")
 		msg = newMsg
 	}
 
@@ -230,7 +248,6 @@ func (e errMsg) Error() string { return e.error.Error() }
 
 func closeTasksCmd(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {
-		log.Println("closeTasksCmd")
 		if err := store.CloseTasks(db); err != nil {
 			return errMsg{err}
 		}
@@ -240,8 +257,40 @@ func closeTasksCmd(db *badger.DB) tea.Cmd {
 
 func createTaskCmd(db *badger.DB, t string) tea.Cmd {
 	return func() tea.Msg {
-		log.Println("createTaskCmd")
 		if err := store.CreateTask(db, t); err != nil {
+			return errMsg{err}
+		}
+		return updateTaskListMsg{}
+	}
+}
+
+func togglePauseCmd(db *badger.DB) tea.Cmd {
+	return func() tea.Msg {
+		tasks, err := store.GetTaskList(db)
+		if err != nil {
+			return errMsg{err}
+		}
+		for _, t := range tasks {
+			if t.EndAt.IsZero() && t.PausedAt.IsZero() {
+				if err := store.PauseTask(db); err != nil {
+					return errMsg{err}
+				}
+				return updateTaskListMsg{}
+			}
+			if t.EndAt.IsZero() && !t.PausedAt.IsZero() {
+				if err := store.ResumeTask(db); err != nil {
+					return errMsg{err}
+				}
+				return updateTaskListMsg{}
+			}
+		}
+		return nil
+	}
+}
+
+func deleteTaskCmd(db *badger.DB, id uint64) tea.Cmd {
+	return func() tea.Msg {
+		if err := store.DeleteTask(db, id); err != nil {
 			return errMsg{err}
 		}
 		return updateTaskListMsg{}
@@ -254,7 +303,6 @@ func enqueueTaskListUpdate() tea.Msg {
 
 func updateTaskListCmd(db *badger.DB) tea.Cmd {
 	return func() tea.Msg {
-		log.Println("updateTaskListCmd")
 		tasks, err := store.GetTaskList(db)
 		if err != nil {
 			return errMsg{err}
@@ -266,26 +314,36 @@ func updateTaskListCmd(db *badger.DB) tea.Cmd {
 // models
 
 type item struct {
-	title      string
-	start, end time.Time
+	id        uint64
+	title     string
+	start     time.Time
+	end       time.Time
+	pausedAt  time.Time
+	pausedFor time.Duration
 }
 
 func (i item) Title() string {
-	if i.end.IsZero() {
-		return boldStyle.Render(i.title)
+	if !i.end.IsZero() {
+		return i.title
 	}
-	return i.title
+	if !i.pausedAt.IsZero() {
+		return boldStyle.Render(i.title + " [paused]")
+	}
+	return boldStyle.Render(i.title)
 }
 
 func (i item) Description() string {
-	end := time.Now()
-	if !i.end.IsZero() {
-		end = i.end
+	t := model.Task{
+		StartAt:   i.start,
+		EndAt:     i.end,
+		PausedAt:  i.pausedAt,
+		PausedFor: i.pausedFor,
 	}
+	dur := taskDuration(t, time.Now()).Round(time.Second)
 	ago := timeago.Of(i.start, timeago.Options{
 		Precision: timeago.MinutePrecision,
 	})
-	return ago + " - " + end.Sub(i.start).Round(time.Second).String()
+	return ago + " - " + dur.String()
 }
 
 func (i item) FilterValue() string { return i.title }
