@@ -122,10 +122,6 @@ Depends on the OS, but you can see yours running:
 tt paths
 ```
 
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/caarlos0/tasktimer.svg)](https://starchart.cc/caarlos0/tasktimer)
-
 [Badger]: https://github.com/dgraph-io/badger
 [releases]:  https://github.com/caarlos0/tasktimer/releases
 
