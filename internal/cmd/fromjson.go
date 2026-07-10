@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"slices"
 
 	"github.com/caarlos0/tasktimer/internal/model"
 	"github.com/caarlos0/tasktimer/internal/store"
@@ -37,7 +38,11 @@ func newFromJSONCmd() *fromJSONCmd {
 
 			var tasks []model.ExportedTask
 			if err := json.Unmarshal(input, &tasks); err != nil {
-				return fmt.Errorf("input json is not in the correct format: %w", err)
+				// maybe tasks are grouped
+				if errG := tryImportGrouped(input, &tasks); errG != nil {
+					// still invalid format
+					return fmt.Errorf("input json is not in the correct format: %w", err)
+				}
 			}
 
 			tmp, err := ioutil.TempFile("", "tasktimer-"+project)
@@ -59,4 +64,25 @@ func newFromJSONCmd() *fromJSONCmd {
 	}
 
 	return &fromJSONCmd{cmd: cmd}
+}
+
+func tryImportGrouped(input []byte, tasks *[]model.ExportedTask) error {
+	g := model.ExportedTasksGrouped{}
+	err := json.Unmarshal(input, &g)
+	if err != nil {
+		return err
+	}
+
+	for n, ts := range g {
+		for _, t := range ts {
+			t.Title = n
+			*tasks = append(*tasks, t)
+		}
+	}
+
+	slices.SortFunc(*tasks, func(t1 model.ExportedTask, t2 model.ExportedTask) int {
+		return t1.StartAt.Compare(t2.StartAt)
+	})
+
+	return nil
 }
